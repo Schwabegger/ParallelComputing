@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace Simulator
 {
-    public class Virus
-    {
-        public float InfectionRate { get; set; }
-        public float MortalityRate { get; set; }
-    }
+    public sealed record Virus(string Name, float InfectionRate, float MortalityRate);
+    //{
+    //    public string Name { get; set; }
+    //    public float InfectionRate { get; set; }
+    //    public float MortalityRate { get; set; }
+    //}
 }

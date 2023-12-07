@@ -31,13 +31,19 @@
             components = new System.ComponentModel.Container();
             ctxms = new ContextMenuStrip(components);
             pbWorld = new PictureBox();
+            tsmiStart = new ToolStripMenuItem();
+            tsmiCancle = new ToolStripMenuItem();
+            toolStripSeparator1 = new ToolStripSeparator();
+            tsmiConfig = new ToolStripMenuItem();
+            ctxms.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pbWorld).BeginInit();
             SuspendLayout();
             // 
             // ctxms
             // 
+            ctxms.Items.AddRange(new ToolStripItem[] { tsmiStart, tsmiCancle, toolStripSeparator1, tsmiConfig });
             ctxms.Name = "ctxms";
-            ctxms.Size = new Size(61, 4);
+            ctxms.Size = new Size(181, 98);
             // 
             // pbWorld
             // 
@@ -48,6 +54,32 @@
             pbWorld.TabIndex = 1;
             pbWorld.TabStop = false;
             // 
+            // tsmiStart
+            // 
+            tsmiStart.Name = "tsmiStart";
+            tsmiStart.Size = new Size(180, 22);
+            tsmiStart.Text = "Start";
+            tsmiStart.Click += tsmiStart_Click;
+            // 
+            // tsmiCancle
+            // 
+            tsmiCancle.Name = "tsmiCancle";
+            tsmiCancle.Size = new Size(180, 22);
+            tsmiCancle.Text = "Cancle";
+            tsmiCancle.Click += tsmiCancle_Click;
+            // 
+            // toolStripSeparator1
+            // 
+            toolStripSeparator1.Name = "toolStripSeparator1";
+            toolStripSeparator1.Size = new Size(177, 6);
+            // 
+            // tsmiConfig
+            // 
+            tsmiConfig.Name = "tsmiConfig";
+            tsmiConfig.Size = new Size(180, 22);
+            tsmiConfig.Text = "Configuration";
+            tsmiConfig.Click += tsmiConfig_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -56,6 +88,7 @@
             Controls.Add(pbWorld);
             Name = "Form1";
             Text = "Form1";
+            ctxms.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pbWorld).EndInit();
             ResumeLayout(false);
         }
@@ -67,5 +100,9 @@
         private Button btnCancle;
         private ContextMenuStrip ctxms;
         private PictureBox pbWorld;
+        private ToolStripMenuItem tsmiStart;
+        private ToolStripMenuItem tsmiCancle;
+        private ToolStripSeparator toolStripSeparator1;
+        private ToolStripMenuItem tsmiConfig;
     }
 }
