@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 
 namespace Simulator
 {
     public class Simulation
     {
+        public event EventHandler? CancleSimulation;
         private readonly SimulationConfig _config;
         private readonly World _world;
         Person[] people;

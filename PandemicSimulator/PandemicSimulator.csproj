@@ -6,6 +6,8 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +16,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Simulator\Simulator.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Imgs\" />
   </ItemGroup>
 
 </Project>

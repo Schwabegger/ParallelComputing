@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Simulator
+﻿namespace Simulator
 {
     public class SimulationConfig
     {
@@ -12,7 +6,7 @@ namespace Simulator
         public int Height { get; set; }
         public int PersonHealth { get; set; }
         public int PopulationSize { get; set; }
-        public float InitialInfectionRate { get; set; }
+        public int InitialInfectionRate { get; set; }
         public Virus Virus { get; set; }
 
         /// <summary>

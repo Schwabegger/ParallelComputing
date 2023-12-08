@@ -15,7 +15,7 @@ namespace Simulator
         public World(SimulationConfig config)
         {
             _world = new Person[config.Width, config.Height];
-            _people = new Person[config.PopulationSize];
+            //_people = new Person[config.PopulationSize];
             //Init(config);
         }
 

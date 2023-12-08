@@ -31,12 +31,12 @@
             label1 = new Label();
             label2 = new Label();
             label3 = new Label();
-            textBox1 = new TextBox();
-            numericUpDown1 = new NumericUpDown();
-            numericUpDown2 = new NumericUpDown();
+            txtName = new TextBox();
+            nudMortalityRate = new NumericUpDown();
+            nudInfectionRate = new NumericUpDown();
             btnSave = new Button();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown1).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown2).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudMortalityRate).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudInfectionRate).BeginInit();
             SuspendLayout();
             // 
             // label1
@@ -53,39 +53,39 @@
             label2.AutoSize = true;
             label2.Location = new Point(12, 37);
             label2.Name = "label2";
-            label2.Size = new Size(74, 15);
+            label2.Size = new Size(77, 15);
             label2.TabIndex = 1;
-            label2.Text = "Infectionrate";
+            label2.Text = "Infection rate";
             // 
             // label3
             // 
             label3.AutoSize = true;
             label3.Location = new Point(12, 66);
             label3.Name = "label3";
-            label3.Size = new Size(75, 15);
+            label3.Size = new Size(78, 15);
             label3.TabIndex = 2;
-            label3.Text = "Mortalityrate";
+            label3.Text = "Mortality rate";
             // 
-            // textBox1
+            // txtName
             // 
-            textBox1.Location = new Point(93, 6);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(120, 23);
-            textBox1.TabIndex = 3;
+            txtName.Location = new Point(93, 6);
+            txtName.Name = "txtName";
+            txtName.Size = new Size(120, 23);
+            txtName.TabIndex = 3;
             // 
-            // numericUpDown1
+            // nudMortalityRate
             // 
-            numericUpDown1.Location = new Point(93, 64);
-            numericUpDown1.Name = "numericUpDown1";
-            numericUpDown1.Size = new Size(120, 23);
-            numericUpDown1.TabIndex = 4;
+            nudMortalityRate.Location = new Point(93, 64);
+            nudMortalityRate.Name = "nudMortalityRate";
+            nudMortalityRate.Size = new Size(120, 23);
+            nudMortalityRate.TabIndex = 4;
             // 
-            // numericUpDown2
+            // nudInfectionRate
             // 
-            numericUpDown2.Location = new Point(93, 35);
-            numericUpDown2.Name = "numericUpDown2";
-            numericUpDown2.Size = new Size(120, 23);
-            numericUpDown2.TabIndex = 5;
+            nudInfectionRate.Location = new Point(93, 35);
+            nudInfectionRate.Name = "nudInfectionRate";
+            nudInfectionRate.Size = new Size(120, 23);
+            nudInfectionRate.TabIndex = 5;
             // 
             // btnSave
             // 
@@ -103,16 +103,16 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(222, 122);
             Controls.Add(btnSave);
-            Controls.Add(numericUpDown2);
-            Controls.Add(numericUpDown1);
-            Controls.Add(textBox1);
+            Controls.Add(nudInfectionRate);
+            Controls.Add(nudMortalityRate);
+            Controls.Add(txtName);
             Controls.Add(label3);
             Controls.Add(label2);
             Controls.Add(label1);
             Name = "CreateVirusForm";
             Text = "CreateVirusForm";
-            ((System.ComponentModel.ISupportInitialize)numericUpDown1).EndInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown2).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudMortalityRate).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudInfectionRate).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -122,9 +122,9 @@
         private Label label1;
         private Label label2;
         private Label label3;
-        private TextBox textBox1;
-        private NumericUpDown numericUpDown1;
-        private NumericUpDown numericUpDown2;
+        private TextBox txtName;
+        private NumericUpDown nudMortalityRate;
+        private NumericUpDown nudInfectionRate;
         private Button btnSave;
     }
 }
