@@ -7,12 +7,14 @@ namespace PandemicSimulator
 {
     public partial class Form1 : Form
     {
-        private Bitmap? _bitmap;
+        private Bitmap _worldBitmap = new(2,2);
         private Simulation? _simulation;
         private SimulationConfig? _config;
         private Stopwatch _stopwatch = new Stopwatch();
         private int _frameCount = 0;
         private decimal _fps = 0;
+
+        private OpenGLControl openGLControl;
 
         public Form1()
         {
@@ -20,13 +22,21 @@ namespace PandemicSimulator
             // In your form constructor or initialization code
             //SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
             //UpdateStyles();
+            InitializeOpenGLControl();
+        }
+
+        private void InitializeOpenGLControl()
+        {
+            openGLControl = new OpenGLControl();
+            openGLControl.Dock = DockStyle.Fill;
+            Controls.Add(openGLControl);
         }
 
         private void tsmiStart_Click(object sender, EventArgs e)
         {
             _simulation = new Simulation(_config);
             _simulation.Initialize();
-            _bitmap = new Bitmap(_config.Width, _config.Height, PixelFormat.Format32bppArgb);
+            _worldBitmap = new Bitmap(_config.Width, _config.Height, PixelFormat.Format32bppArgb);
             // Simulation Events
 
             _simulation.Run();
@@ -50,7 +60,7 @@ namespace PandemicSimulator
 
         private void UpdateImg()
         {
-            BitmapData bmpData = _bitmap.LockBits(new Rectangle(0, 0, _bitmap.Width, _bitmap.Height), ImageLockMode.ReadWrite, _bitmap.PixelFormat);
+            BitmapData bmpData = _worldBitmap.LockBits(new Rectangle(0, 0, _worldBitmap.Width, _worldBitmap.Height), ImageLockMode.ReadWrite, _worldBitmap.PixelFormat);
 
             try
             {
@@ -75,7 +85,7 @@ namespace PandemicSimulator
             }
             finally
             {
-                _bitmap.UnlockBits(bmpData);
+                _worldBitmap.UnlockBits(bmpData);
                 _autoResetEvent.Set();
             }
         }
@@ -104,7 +114,7 @@ namespace PandemicSimulator
                 PopulationSize = 100,
                 Virus = new Virus(Name: "Test", MortalityRate: 0.1f, InfectionRate: 0.1f)
             };
-            _bitmap ??= new Bitmap(_config.Width, _config.Height, PixelFormat.Format32bppArgb);
+            _worldBitmap ??= new Bitmap(_config.Width, _config.Height, PixelFormat.Format32bppArgb);
             _stopwatch.Start();
             timer1.Start();
 
@@ -116,36 +126,41 @@ namespace PandemicSimulator
                 iterations++;
                 lblIterations.Text = $"Iterations: {iterations}";
                 UpdateImg();
-                pbWorld.Image = _bitmap;
-                //Application.DoEvents();
                 switch (_fps)
                 {
                     case > 1000:
                         if (iterations % 50 == 0)
-                                Application.DoEvents();
+                            UpdateUI();
                         break;
                     case > 500:
                         if (iterations % 20 == 0)
-                            Application.DoEvents();
+                            UpdateUI();
                         break;
                     case > 240:
                         if (iterations % 10 == 0)
-                            Application.DoEvents();
+                            UpdateUI();
                         break;
                     case > 120:
                         if (iterations % 3 == 0)
-                            Application.DoEvents();
+                            UpdateUI();
                         break;
                     case > 60:
                         if (iterations % 2 == 0)
-                            Application.DoEvents();
+                            UpdateUI();
                         break;
                     default:
-                            Application.DoEvents();
+                        UpdateUI();
                         break;
                 }
                 _autoResetEvent.WaitOne();
             }
+        }
+
+        private void UpdateUI()
+        {
+            //pbWorld.Image = WorldBitmap;
+            openGLControl.SetBitmapToRender(_worldBitmap);
+            Application.DoEvents();
         }
 
         private void timer1_Tick(object sender, EventArgs e)

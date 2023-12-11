@@ -40,6 +40,7 @@
             timer1 = new System.Windows.Forms.Timer(components);
             lblFps = new Label();
             lblIterations = new Label();
+            oglcWorld = new OpenGLControl();
             ((System.ComponentModel.ISupportInitialize)pbWorld).BeginInit();
             menuStrip1.SuspendLayout();
             SuspendLayout();
@@ -126,11 +127,22 @@
             lblIterations.TabIndex = 5;
             lblIterations.Text = "0";
             // 
+            // oglcWorld
+            // 
+            oglcWorld.BackColor = Color.Black;
+            oglcWorld.Location = new Point(13, 47);
+            oglcWorld.Margin = new Padding(4, 3, 4, 3);
+            oglcWorld.Name = "oglcWorld";
+            oglcWorld.Size = new Size(774, 391);
+            oglcWorld.TabIndex = 6;
+            oglcWorld.VSync = true;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(oglcWorld);
             Controls.Add(lblIterations);
             Controls.Add(lblFps);
             Controls.Add(menuStrip1);
@@ -158,5 +170,6 @@
         private System.Windows.Forms.Timer timer1;
         private Label lblFps;
         private Label lblIterations;
+        private OpenGLControl oglcWorld;
     }
 }
