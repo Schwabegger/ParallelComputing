@@ -8,7 +8,8 @@ namespace PandemicSimulator
 {
     public partial class Form1 : Form
     {
-        CancellationToken simulationCancellationToken = new();
+        static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private CancellationToken simulationCancellationToken = cancellationTokenSource.Token;
         private Bitmap _worldBitmap;
         private Simulation? _simulation;
         private SimulationConfig? _config;
@@ -20,14 +21,30 @@ namespace PandemicSimulator
 
         private GLControl glControl;
 
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+
+            // Stop yourThread before the form gets disposed.
+            if (simulationThread is not null && simulationThread.IsAlive)
+            {
+                simulationThread.Abort();
+            }
+
+            base.Dispose(disposing);
+        }
+
         public Form1()
         {
             InitializeComponent();
             // In your form constructor or initialization code
             //SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
             //UpdateStyles();
-
-            glControl = new();
+            Size = new Size(1000, 1000);
+            glControl = new GLControl();
             glControl.Dock = DockStyle.Fill;
             glControl.Paint += GlControl_Paint;
             Controls.Add(glControl);
@@ -35,15 +52,13 @@ namespace PandemicSimulator
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            //glControl.InitializeOpenGLControl();
             InitializeOpenGLControl();
         }
 
         internal void InitializeOpenGLControl()
         {
-            GL.ClearColor(Color.Black);
-            GL.GenTextures(1, out texture);
             GL.Enable(EnableCap.Texture2D);
+            GL.GenTextures(1, out texture);
             GL.BindTexture(TextureTarget.Texture2D, texture);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
@@ -52,18 +67,12 @@ namespace PandemicSimulator
         private void GlControl_Paint(object sender, PaintEventArgs e)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            //GL.BindTexture(TextureTarget.Texture2D, texture);
+            GL.BindTexture(TextureTarget.Texture2D, texture);
             GL.Begin(PrimitiveType.Quads);
             GL.TexCoord2(0, 0); GL.Vertex2(-1, -1);
             GL.TexCoord2(1, 0); GL.Vertex2(1, -1);
             GL.TexCoord2(1, 1); GL.Vertex2(1, 1);
             GL.TexCoord2(0, 1); GL.Vertex2(-1, 1);
-            /*
-            GL.TexCoord2(0, 0); GL.Vertex2(0, 0);
-            GL.TexCoord2(1, 0); GL.Vertex2(Width, 0);
-            GL.TexCoord2(1, 1); GL.Vertex2(Width, Height);
-            GL.TexCoord2(0, 1); GL.Vertex2(0, Height);
-            */
             GL.End();
             glControl.SwapBuffers();
         }
@@ -73,7 +82,7 @@ namespace PandemicSimulator
             BitmapData data = _worldBitmap.LockBits(new Rectangle(0, 0, _worldBitmap.Width, _worldBitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             try
             {
-                //GL.BindTexture(TextureTarget.Texture2D, texture);
+                GL.BindTexture(TextureTarget.Texture2D, texture);
                 GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, data.Width, data.Height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
             }
             catch (Exception ex)
@@ -178,13 +187,15 @@ namespace PandemicSimulator
             return _random.Next(min, max);
         }
 
+        int iterations = 0;
         AutoResetEvent _autoResetEvent = new AutoResetEvent(false);
-        private void tsmiTest_Click(object sender, EventArgs e)
+        Thread simulationThread;
+        private async void tsmiTest_Click(object sender, EventArgs e)
         {
             _config ??= new SimulationConfig()
             {
-                Height = 10,
-                Width = 10,
+                Height = 100,
+                Width = 100,
                 InitialInfectionRate = 10,
                 PersonHealth = 100,
                 PopulationSize = 100,
@@ -194,52 +205,33 @@ namespace PandemicSimulator
             _stopwatch.Start();
             timer1.Start();
 
-            int iterations = 0;
-
-            while (true)
+            simulationThread = new Thread(() =>
             {
-                //_frameCount++;
-                Interlocked.Increment(ref _frameCount);
-                iterations++;
-                UpdateImg();
-                UpdateUI();
-                //switch (_fps)
-                //{
-                //    case > 1000:
-                //        if (iterations % 50 == 0)
-                //            UpdateUI();
-                //        break;
-                //    case > 500:
-                //        if (iterations % 20 == 0)
-                //            UpdateUI();
-                //        break;
-                //    case > 240:
-                //        if (iterations % 10 == 0)
-                //            UpdateUI();
-                //        break;
-                //    case > 120:
-                //        if (iterations % 3 == 0)
-                //            UpdateUI();
-                //        break;
-                //    case > 60:
-                //        if (iterations % 2 == 0)
-                //            UpdateUI();
-                //        break;
-                //    default:
-                //        UpdateUI();
-                //        break;
-                //}
-                _autoResetEvent.WaitOne();
-            }
+                while (!simulationCancellationToken.IsCancellationRequested && !this.IsDisposed)
+                {
+                    Interlocked.Increment(ref _frameCount);
+                    iterations++;
+                    UpdateImg();
+                    UpdateUI();
+                    //_autoResetEvent.WaitOne();
+                }
+                MessageBox.Show("Simulation finished!");
+            });
+            simulationThread.Start();
         }
 
         private void UpdateUI()
         {
-            UpdateTexture();
             //glControl.UpdateTexture(_worldBitmap);
             if (InvokeRequired)
             {
-                Application.DoEvents();
+                Invoke(UpdateTexture);
+                Invoke(() => lblIterations.Text = $"Iterations: {iterations}");
+            }
+            else
+            {
+                if (this.IsDisposed || !this.IsHandleCreated) return;
+                UpdateTexture();
             }
             //UpdateTexture();
             //Application.DoEvents();
@@ -250,7 +242,7 @@ namespace PandemicSimulator
             if (_stopwatch.ElapsedMilliseconds >= 1000)
             {
                 _fps = Math.Round(((decimal)_frameCount / (_stopwatch.ElapsedMilliseconds / 1000)), 2);
-                lblFps.Text = $"FPS: {_fps}";
+                Invoke(() => lblFps.Text = $"FPS: {_fps}");
                 _frameCount = 0;
                 _stopwatch.Restart();
             }
