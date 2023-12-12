@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            pbWorld = new PictureBox();
             menuStrip1 = new MenuStrip();
             startToolStripMentsmiSimulationuItem = new ToolStripMenuItem();
             tsmiStart = new ToolStripMenuItem();
@@ -40,20 +39,8 @@
             timer1 = new System.Windows.Forms.Timer(components);
             lblFps = new Label();
             lblIterations = new Label();
-            oglcWorld = new OpenGLControl();
-            ((System.ComponentModel.ISupportInitialize)pbWorld).BeginInit();
             menuStrip1.SuspendLayout();
             SuspendLayout();
-            // 
-            // pbWorld
-            // 
-            pbWorld.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            pbWorld.Location = new Point(0, 27);
-            pbWorld.Name = "pbWorld";
-            pbWorld.Size = new Size(800, 423);
-            pbWorld.SizeMode = PictureBoxSizeMode.StretchImage;
-            pbWorld.TabIndex = 1;
-            pbWorld.TabStop = false;
             // 
             // menuStrip1
             // 
@@ -127,30 +114,18 @@
             lblIterations.TabIndex = 5;
             lblIterations.Text = "0";
             // 
-            // oglcWorld
-            // 
-            oglcWorld.BackColor = Color.Black;
-            oglcWorld.Location = new Point(13, 47);
-            oglcWorld.Margin = new Padding(4, 3, 4, 3);
-            oglcWorld.Name = "oglcWorld";
-            oglcWorld.Size = new Size(774, 391);
-            oglcWorld.TabIndex = 6;
-            oglcWorld.VSync = true;
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(oglcWorld);
             Controls.Add(lblIterations);
             Controls.Add(lblFps);
             Controls.Add(menuStrip1);
-            Controls.Add(pbWorld);
             MainMenuStrip = menuStrip1;
             Name = "Form1";
             Text = "Form1";
-            ((System.ComponentModel.ISupportInitialize)pbWorld).EndInit();
+            Load += Form1_Load;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             ResumeLayout(false);
@@ -158,8 +133,6 @@
         }
 
         #endregion
-
-        private PictureBox pbWorld;
         private ToolStripMenuItem tsmiStart;
         private ToolStripMenuItem tsmiCancle;
         private MenuStrip menuStrip1;
@@ -170,6 +143,5 @@
         private System.Windows.Forms.Timer timer1;
         private Label lblFps;
         private Label lblIterations;
-        private OpenGLControl oglcWorld;
     }
 }

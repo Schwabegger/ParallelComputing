@@ -9,12 +9,12 @@ namespace Simulator
 {
     public class World
     {
-        private readonly Person?[,] _world;
+        private readonly Person?[,] _worldMap;
         //private Person[] _people;
 
         public World(SimulationConfig config)
         {
-            _world = new Person[config.Width, config.Height];
+            _worldMap = new Person[config.Width, config.Height];
             //_people = new Person[config.PopulationSize];
             //Init(config);
         }
@@ -36,7 +36,7 @@ namespace Simulator
 
         public Person? GetPersonAt(Point position)
         {
-            return _world[position.X, position.Y];
+            return _worldMap[position.X, position.Y];
         }
 
         public void SimulateDay()
