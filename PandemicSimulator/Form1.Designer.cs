@@ -1,4 +1,6 @@
-﻿namespace PandemicSimulator
+﻿using System.Threading;
+
+namespace PandemicSimulator
 {
     partial class Form1
     {
@@ -13,6 +15,11 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
+            if (simulationThread is not null && simulationThread.IsAlive)
+            {
+                cancellationTokenSource.Cancel();
+                //simulationThread.Join();
+            }
             if (disposing && (components != null))
             {
                 components.Dispose();
@@ -126,6 +133,7 @@
             Name = "Form1";
             Text = "Form1";
             Load += Form1_Load;
+            ResizeEnd += Form1_ResizeEnd;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             ResumeLayout(false);

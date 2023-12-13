@@ -4,10 +4,12 @@ namespace Simulator
 {
     public sealed class SimulationUpdateEventArgs : EventArgs
     {
-        public int PeopleAlive { get; set; }
-        public int PeopleInfected { get; set; }
-        public int PeopleContagious { get; set; }
-        public MovedPerson[] MovedPeople { get; set; }
+        public required int PeopleAlive { get; set; }
+        public required int PeopleInfected { get; set; }
+        public required int PeopleContagious { get; set; }
+        public required MovedPerson[] MovedPeople { get; set; }
+
+        public required Point[] PeopleDied { get; set; }
     }
 
     public sealed class MovedPerson
@@ -15,6 +17,8 @@ namespace Simulator
         public Point PreviousPosition { get; set; }
         public Point CurrentPosition { get; set; }
         public int Health { get; set; }
+        public bool IsInfected { get; set; }
+        public bool IsContagious { get; set; }
     }
 
     public sealed class Simulation
@@ -25,7 +29,8 @@ namespace Simulator
 
         private readonly SimulationConfig _config;
         private readonly World _world;
-        List<MovedPerson> movedPeople;
+        List<MovedPerson> movedPeople = new();
+        List<Point> diedPeople = new();
         Person[] people;
         int pplAlive;
         int pplInfected;
@@ -47,7 +52,8 @@ namespace Simulator
             for (int i = 0; i < _config.PopulationSize; i++)
             {
                 Point pos;
-                do {
+                do
+                {
                     pos = new Point(rnd.Next(0, _config.Width), rnd.Next(0, _config.Height));
                 } while (_world.GetPersonAt(pos) == null);
 
@@ -78,6 +84,7 @@ namespace Simulator
             person.OnContagious -= Simulation_OnContagious;
             person.OnDeath -= Simulation_OnDeath;
             person.OnHealed -= Simulation_OnHealed;
+            person.OnMoved -= Simulation_OnMoved;
             people = people.Where(p => p != person).ToArray();
         }
         private void Simulation_OnMoved(object? sender, PersonMoveEventArgs e)
@@ -108,8 +115,11 @@ namespace Simulator
                     PeopleAlive = pplAlive,
                     PeopleInfected = pplInfected,
                     PeopleContagious = pplContagious,
-                    MovedPeople = movedPeople.ToArray()
+                    MovedPeople = movedPeople.ToArray(),
+                    PeopleDied = diedPeople.ToArray()
                 });
+                movedPeople.Clear();
+                diedPeople.Clear();
             }
             OnSimulationFinished?.Invoke(this, EventArgs.Empty);
         }

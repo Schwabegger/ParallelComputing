@@ -25,7 +25,7 @@ namespace PandemicSimulator
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
         }
 
-        private void GlControl_Paint(object sender, PaintEventArgs e)
+        private void GlControl_Paint(object? sender, PaintEventArgs e)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.BindTexture(TextureTarget.Texture2D, texture);
