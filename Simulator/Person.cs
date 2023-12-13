@@ -58,13 +58,14 @@ namespace Simulator
 
         public void HaveANiceDay()
         {
-            if(Health > halfHealth)
+            if (Health > halfHealth)
                 Move();
+
             if (IsContagious)
             {
 
             }
-            else if(IsInfected)
+            else if (IsInfected)
             {
                 TimeSinceInfection++;
                 if(TimeSinceInfection > IncubationTime && !IsContagious)

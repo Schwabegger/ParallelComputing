@@ -94,6 +94,8 @@ namespace Simulator
             {
                 PreviousPosition = e.PreviousPosition,
                 CurrentPosition = e.CurrentPosition,
+                IsContagious = person.IsContagious,
+                IsInfected = person.IsInfected,
                 Health = person.Health
             });
         }
@@ -109,7 +111,10 @@ namespace Simulator
 
             while (RunCondition())
             {
-
+                foreach (var person in people)
+                {
+                    person.HaveANiceDay();
+                }
                 OnSimulationUpdated?.Invoke(this, new SimulationUpdateEventArgs
                 {
                     PeopleAlive = pplAlive,

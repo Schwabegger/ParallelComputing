@@ -15,7 +15,7 @@ namespace PandemicSimulator
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (simulationThread is not null && simulationThread.IsAlive)
+            if (_simulationThread is not null && _simulationThread.IsAlive)
             {
                 cancellationTokenSource.Cancel();
                 //simulationThread.Join();

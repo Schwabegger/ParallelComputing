@@ -33,10 +33,17 @@ namespace PandemicSimulator
             // In your form constructor or initialization code
             //SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
             //UpdateStyles();
-            Size = new Size(1000, 1000);
+            
+            Screen screen = Screen.PrimaryScreen;
+            int width = screen.Bounds.Width;
+            int height = screen.Bounds.Height;
+
+
+            Size = new Size(width, height);
+            this.CenterToScreen();
             glControl = new GLControl();
 #warning REMOVE
-            glControl.VSync = true;
+            glControl.VSync = false;
             glControl.Dock = DockStyle.Fill;
             glControl.Paint += GlControl_Paint;
             Controls.Add(glControl);
@@ -154,21 +161,25 @@ namespace PandemicSimulator
             UpdateTexture();
         }
         #endregion
-        enum PersonColour
+
+        private enum PersonColor
         {
+            Healthy,
             Infected,
             Contagious,
             LowHealth,
             InfectedAndLowHealth,
             ContagiousAndLowHealth
         }
-        readonly Dictionary<PersonColour, Color> personColours = new()
+
+        readonly Dictionary<PersonColor, Color> _personColors = new()
         {
-            [PersonColour.Infected] = Color.FromArgb(255, 255, 0, 0),
-            [PersonColour.Contagious] = Color.FromArgb(255, 255, 255, 0),
-            [PersonColour.LowHealth] = Color.FromArgb(255, 0, 0, 255),
-            [PersonColour.InfectedAndLowHealth] = Color.FromArgb(255, 255, 0, 255),
-            [PersonColour.ContagiousAndLowHealth] = Color.FromArgb(255, 255, 255, 255)
+            [PersonColor.Healthy] = Color.FromArgb(255, 0, 255, 0),
+            [PersonColor.Infected] = Color.FromArgb(255, 255, 0, 0),
+            [PersonColor.Contagious] = Color.FromArgb(255, 255, 255, 0),
+            [PersonColor.LowHealth] = Color.FromArgb(255, 0, 0, 255),
+            [PersonColor.InfectedAndLowHealth] = Color.FromArgb(255, 255, 0, 255),
+            [PersonColor.ContagiousAndLowHealth] = Color.FromArgb(255, 255, 255, 255)
         };
 
         private async Task UpdateImgPartially(MovedPerson[] movedPeople)
@@ -178,9 +189,27 @@ namespace PandemicSimulator
 
             try
             {
-                Parallel.ForEach(movedPeople, (person, token) =>
+                //Parallel.ForEach(movedPeople, (person) =>
+                //{
+                //    int index = person.PreviousPosition.Y * bmpData.Stride + person.PreviousPosition.X * 4; // Assuming 32bppArgb format
+                //    lock (_locks[person.PreviousPosition.X, person.PreviousPosition.Y])
+                //    {
+                //        if (_locks[person.PreviousPosition.X, person.PreviousPosition.Y].IsNewPerson)
+                //            return;
+                //        unsafe
+                //        {
+                //            byte* ptr = (byte*)bmpData.Scan0;
+                //            ptr[index] = 0;
+                //            ptr[index + 1] = 0;
+                //            ptr[index + 2] = 0;
+                //            ptr[index + 3] = 255;
+                //        }
+                //    }
+                //});
+
+                Parallel.ForEach(movedPeople, (person) =>
                 {
-                    Task t1 = new Task(() =>
+                    Task t1 = new(() =>
                     {
                         int index = person.PreviousPosition.Y * bmpData.Stride + person.PreviousPosition.X * 4; // Assuming 32bppArgb format
                         lock (_locks[person.PreviousPosition.X, person.PreviousPosition.Y])
@@ -198,23 +227,23 @@ namespace PandemicSimulator
                         }
                     });
 
-                    Task t2 = new Task(() =>
+                    Task t2 = new(() =>
                     {
                         int index = person.CurrentPosition.Y * bmpData.Stride + person.CurrentPosition.X * 4; // Assuming 32bppArgb format
                         Color color;
 
                         if (person.IsInfected && person.IsContagious)
-                            color = personColours[PersonColour.Contagious];
+                            color = _personColors[PersonColor.Contagious];
                         else if (person.IsInfected)
-                            color = personColours[PersonColour.Infected];
+                            color = _personColors[PersonColor.Infected];
                         else if (person.IsContagious)
-                            color = personColours[PersonColour.Contagious];
+                            color = _personColors[PersonColor.Contagious];
                         else if (person.Health < 50)
-                            color = personColours[PersonColour.LowHealth];
+                            color = _personColors[PersonColor.LowHealth];
                         else if (person.IsInfected && person.Health < 50)
-                            color = personColours[PersonColour.InfectedAndLowHealth];
+                            color = _personColors[PersonColor.InfectedAndLowHealth];
                         else if (person.IsContagious && person.Health < 50)
-                            color = personColours[PersonColour.ContagiousAndLowHealth];
+                            color = _personColors[PersonColor.ContagiousAndLowHealth];
                         else
                             color = Color.Azure;
 
@@ -300,15 +329,14 @@ namespace PandemicSimulator
             return _random.Next(min, max);
         }
 
-        int iterations = 0;
-        AutoResetEvent _autoResetEvent = new AutoResetEvent(false);
-        Thread? simulationThread;
+        int _iterations = 0;
+        Thread? _simulationThread;
         private void tsmiTest_Click(object sender, EventArgs e)
         {
             _config ??= new SimulationConfig()
             {
-                Height = 100,
-                Width = 100,
+                Height = 1400,
+                Width = 5120,
                 InitialInfectionRate = 10,
                 PersonHealth = 100,
                 PopulationSize = 100,
@@ -318,9 +346,9 @@ namespace PandemicSimulator
             _stopwatch.Start();
             timer1.Start();
 
-            simulationThread = new Thread(TestLoop);
-            simulationThread.IsBackground = true;
-            simulationThread.Start();
+            _simulationThread = new Thread(TestLoop);
+            _simulationThread.IsBackground = true;
+            _simulationThread.Start();
         }
 
         private void TestLoop()
@@ -328,7 +356,7 @@ namespace PandemicSimulator
             while (!simulationCancellationToken.IsCancellationRequested && !this.IsDisposed)
             {
                 Interlocked.Increment(ref _frameCount);
-                iterations++;
+                _iterations++;
                 UpdateImg();
                 UpdateUI();
             }
@@ -342,7 +370,7 @@ namespace PandemicSimulator
                 if (InvokeRequired)
                 {
                     Invoke(UpdateTexture);
-                    Invoke(() => lblIterations.Text = $"Iterations: {iterations}");
+                    Invoke(() => lblIterations.Text = $"Iterations: {_iterations}");
                 }
                 else
                 {
