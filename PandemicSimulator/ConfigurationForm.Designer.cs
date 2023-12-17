@@ -41,41 +41,41 @@
             btnCreateVirus = new Button();
             groupBox1 = new GroupBox();
             groupBox2 = new GroupBox();
-            numericUpDown1 = new NumericUpDown();
-            numericUpDown2 = new NumericUpDown();
+            nudIncreaseResistanceAfterCuringMax = new NumericUpDown();
+            nudIncreaseResistanceAfterCuringMin = new NumericUpDown();
             groupBox3 = new GroupBox();
             label6 = new Label();
             label7 = new Label();
             label8 = new Label();
             label9 = new Label();
-            numericUpDown3 = new NumericUpDown();
-            numericUpDown4 = new NumericUpDown();
+            nudInitialResistanceMax = new NumericUpDown();
+            nudInitialResistanceMin = new NumericUpDown();
             label10 = new Label();
             label11 = new Label();
-            numericUpDown5 = new NumericUpDown();
-            numericUpDown6 = new NumericUpDown();
+            nusAdditionalResistancePerDayWhenInfectedMax = new NumericUpDown();
+            nudAdditionalResistancePerDayWhenInfectedMin = new NumericUpDown();
             groupBox4 = new GroupBox();
             label12 = new Label();
             label13 = new Label();
-            numericUpDown7 = new NumericUpDown();
-            numericUpDown8 = new NumericUpDown();
+            nudDmgDelayMax = new NumericUpDown();
+            nucDmgDelayMin = new NumericUpDown();
             label14 = new Label();
             label15 = new Label();
-            numericUpDown9 = new NumericUpDown();
-            numericUpDown10 = new NumericUpDown();
+            nudIncubationTimeMax = new NumericUpDown();
+            nudIncubationTimeMin = new NumericUpDown();
             label16 = new Label();
             label17 = new Label();
-            numericUpDown11 = new NumericUpDown();
-            numericUpDown12 = new NumericUpDown();
+            nudContagiousTimeMax = new NumericUpDown();
+            nudContagiousTimeMin = new NumericUpDown();
             label18 = new Label();
             label19 = new Label();
-            numericUpDown13 = new NumericUpDown();
-            numericUpDown14 = new NumericUpDown();
+            nudImmunityMax = new NumericUpDown();
+            nudImmunityMin = new NumericUpDown();
             groupBox5 = new GroupBox();
             label24 = new Label();
             label25 = new Label();
-            numericUpDown19 = new NumericUpDown();
-            numericUpDown20 = new NumericUpDown();
+            nudHealMax = new NumericUpDown();
+            nudHealMin = new NumericUpDown();
             groupBox6 = new GroupBox();
             ((System.ComponentModel.ISupportInitialize)nudInitialInfected).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudPopulation).BeginInit();
@@ -83,25 +83,25 @@
             ((System.ComponentModel.ISupportInitialize)nudWidth).BeginInit();
             groupBox1.SuspendLayout();
             groupBox2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown1).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown2).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudIncreaseResistanceAfterCuringMax).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudIncreaseResistanceAfterCuringMin).BeginInit();
             groupBox3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown3).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown4).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown5).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown6).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudInitialResistanceMax).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudInitialResistanceMin).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nusAdditionalResistancePerDayWhenInfectedMax).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudAdditionalResistancePerDayWhenInfectedMin).BeginInit();
             groupBox4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown7).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown8).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown9).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown10).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown11).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown12).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown13).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown14).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudDmgDelayMax).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nucDmgDelayMin).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudIncubationTimeMax).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudIncubationTimeMin).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudContagiousTimeMax).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudContagiousTimeMin).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudImmunityMax).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudImmunityMin).BeginInit();
             groupBox5.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown19).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown20).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudHealMax).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudHealMin).BeginInit();
             groupBox6.SuspendLayout();
             SuspendLayout();
             // 
@@ -236,34 +236,36 @@
             groupBox2.TabStop = false;
             groupBox2.Text = "Person";
             // 
-            // numericUpDown1
+            // nudIncreaseResistanceAfterCuringMax
             // 
-            numericUpDown1.Location = new Point(412, 53);
-            numericUpDown1.Name = "numericUpDown1";
-            numericUpDown1.Size = new Size(120, 23);
-            numericUpDown1.TabIndex = 9;
+            nudIncreaseResistanceAfterCuringMax.DecimalPlaces = 1;
+            nudIncreaseResistanceAfterCuringMax.Location = new Point(412, 53);
+            nudIncreaseResistanceAfterCuringMax.Name = "nudIncreaseResistanceAfterCuringMax";
+            nudIncreaseResistanceAfterCuringMax.Size = new Size(120, 23);
+            nudIncreaseResistanceAfterCuringMax.TabIndex = 9;
             // 
-            // numericUpDown2
+            // nudIncreaseResistanceAfterCuringMin
             // 
-            numericUpDown2.Location = new Point(268, 53);
-            numericUpDown2.Name = "numericUpDown2";
-            numericUpDown2.Size = new Size(120, 23);
-            numericUpDown2.TabIndex = 10;
+            nudIncreaseResistanceAfterCuringMin.DecimalPlaces = 1;
+            nudIncreaseResistanceAfterCuringMin.Location = new Point(268, 53);
+            nudIncreaseResistanceAfterCuringMin.Name = "nudIncreaseResistanceAfterCuringMin";
+            nudIncreaseResistanceAfterCuringMin.Size = new Size(120, 23);
+            nudIncreaseResistanceAfterCuringMin.TabIndex = 10;
             // 
             // groupBox3
             // 
             groupBox3.Controls.Add(label10);
             groupBox3.Controls.Add(label11);
-            groupBox3.Controls.Add(numericUpDown5);
-            groupBox3.Controls.Add(numericUpDown6);
+            groupBox3.Controls.Add(nusAdditionalResistancePerDayWhenInfectedMax);
+            groupBox3.Controls.Add(nudAdditionalResistancePerDayWhenInfectedMin);
             groupBox3.Controls.Add(label8);
             groupBox3.Controls.Add(label9);
-            groupBox3.Controls.Add(numericUpDown3);
-            groupBox3.Controls.Add(numericUpDown4);
+            groupBox3.Controls.Add(nudInitialResistanceMax);
+            groupBox3.Controls.Add(nudInitialResistanceMin);
             groupBox3.Controls.Add(label7);
             groupBox3.Controls.Add(label6);
-            groupBox3.Controls.Add(numericUpDown1);
-            groupBox3.Controls.Add(numericUpDown2);
+            groupBox3.Controls.Add(nudIncreaseResistanceAfterCuringMax);
+            groupBox3.Controls.Add(nudIncreaseResistanceAfterCuringMin);
             groupBox3.Location = new Point(6, 22);
             groupBox3.Name = "groupBox3";
             groupBox3.Size = new Size(542, 118);
@@ -308,19 +310,21 @@
             label9.TabIndex = 15;
             label9.Text = "/";
             // 
-            // numericUpDown3
+            // nudInitialResistanceMax
             // 
-            numericUpDown3.Location = new Point(412, 24);
-            numericUpDown3.Name = "numericUpDown3";
-            numericUpDown3.Size = new Size(120, 23);
-            numericUpDown3.TabIndex = 13;
+            nudInitialResistanceMax.DecimalPlaces = 1;
+            nudInitialResistanceMax.Location = new Point(412, 24);
+            nudInitialResistanceMax.Name = "nudInitialResistanceMax";
+            nudInitialResistanceMax.Size = new Size(120, 23);
+            nudInitialResistanceMax.TabIndex = 13;
             // 
-            // numericUpDown4
+            // nudInitialResistanceMin
             // 
-            numericUpDown4.Location = new Point(268, 24);
-            numericUpDown4.Name = "numericUpDown4";
-            numericUpDown4.Size = new Size(120, 23);
-            numericUpDown4.TabIndex = 14;
+            nudInitialResistanceMin.DecimalPlaces = 1;
+            nudInitialResistanceMin.Location = new Point(268, 24);
+            nudInitialResistanceMin.Name = "nudInitialResistanceMin";
+            nudInitialResistanceMin.Size = new Size(120, 23);
+            nudInitialResistanceMin.TabIndex = 14;
             // 
             // label10
             // 
@@ -340,38 +344,40 @@
             label11.TabIndex = 19;
             label11.Text = "/";
             // 
-            // numericUpDown5
+            // nusAdditionalResistancePerDayWhenInfectedMax
             // 
-            numericUpDown5.Location = new Point(412, 82);
-            numericUpDown5.Name = "numericUpDown5";
-            numericUpDown5.Size = new Size(120, 23);
-            numericUpDown5.TabIndex = 17;
+            nusAdditionalResistancePerDayWhenInfectedMax.DecimalPlaces = 1;
+            nusAdditionalResistancePerDayWhenInfectedMax.Location = new Point(412, 82);
+            nusAdditionalResistancePerDayWhenInfectedMax.Name = "nusAdditionalResistancePerDayWhenInfectedMax";
+            nusAdditionalResistancePerDayWhenInfectedMax.Size = new Size(120, 23);
+            nusAdditionalResistancePerDayWhenInfectedMax.TabIndex = 17;
             // 
-            // numericUpDown6
+            // nudAdditionalResistancePerDayWhenInfectedMin
             // 
-            numericUpDown6.Location = new Point(268, 82);
-            numericUpDown6.Name = "numericUpDown6";
-            numericUpDown6.Size = new Size(120, 23);
-            numericUpDown6.TabIndex = 18;
+            nudAdditionalResistancePerDayWhenInfectedMin.DecimalPlaces = 1;
+            nudAdditionalResistancePerDayWhenInfectedMin.Location = new Point(268, 82);
+            nudAdditionalResistancePerDayWhenInfectedMin.Name = "nudAdditionalResistancePerDayWhenInfectedMin";
+            nudAdditionalResistancePerDayWhenInfectedMin.Size = new Size(120, 23);
+            nudAdditionalResistancePerDayWhenInfectedMin.TabIndex = 18;
             // 
             // groupBox4
             // 
             groupBox4.Controls.Add(label18);
             groupBox4.Controls.Add(label19);
-            groupBox4.Controls.Add(numericUpDown13);
-            groupBox4.Controls.Add(numericUpDown14);
+            groupBox4.Controls.Add(nudImmunityMax);
+            groupBox4.Controls.Add(nudImmunityMin);
             groupBox4.Controls.Add(label12);
             groupBox4.Controls.Add(label13);
-            groupBox4.Controls.Add(numericUpDown7);
-            groupBox4.Controls.Add(numericUpDown8);
+            groupBox4.Controls.Add(nudDmgDelayMax);
+            groupBox4.Controls.Add(nucDmgDelayMin);
             groupBox4.Controls.Add(label14);
             groupBox4.Controls.Add(label15);
-            groupBox4.Controls.Add(numericUpDown9);
-            groupBox4.Controls.Add(numericUpDown10);
+            groupBox4.Controls.Add(nudIncubationTimeMax);
+            groupBox4.Controls.Add(nudIncubationTimeMin);
             groupBox4.Controls.Add(label16);
             groupBox4.Controls.Add(label17);
-            groupBox4.Controls.Add(numericUpDown11);
-            groupBox4.Controls.Add(numericUpDown12);
+            groupBox4.Controls.Add(nudContagiousTimeMax);
+            groupBox4.Controls.Add(nudContagiousTimeMin);
             groupBox4.Location = new Point(6, 146);
             groupBox4.Name = "groupBox4";
             groupBox4.Size = new Size(542, 138);
@@ -397,19 +403,19 @@
             label13.TabIndex = 19;
             label13.Text = "/";
             // 
-            // numericUpDown7
+            // nudDmgDelayMax
             // 
-            numericUpDown7.Location = new Point(412, 82);
-            numericUpDown7.Name = "numericUpDown7";
-            numericUpDown7.Size = new Size(120, 23);
-            numericUpDown7.TabIndex = 17;
+            nudDmgDelayMax.Location = new Point(412, 82);
+            nudDmgDelayMax.Name = "nudDmgDelayMax";
+            nudDmgDelayMax.Size = new Size(120, 23);
+            nudDmgDelayMax.TabIndex = 17;
             // 
-            // numericUpDown8
+            // nucDmgDelayMin
             // 
-            numericUpDown8.Location = new Point(268, 82);
-            numericUpDown8.Name = "numericUpDown8";
-            numericUpDown8.Size = new Size(120, 23);
-            numericUpDown8.TabIndex = 18;
+            nucDmgDelayMin.Location = new Point(268, 82);
+            nucDmgDelayMin.Name = "nucDmgDelayMin";
+            nucDmgDelayMin.Size = new Size(120, 23);
+            nucDmgDelayMin.TabIndex = 18;
             // 
             // label14
             // 
@@ -429,19 +435,19 @@
             label15.TabIndex = 15;
             label15.Text = "/";
             // 
-            // numericUpDown9
+            // nudIncubationTimeMax
             // 
-            numericUpDown9.Location = new Point(412, 24);
-            numericUpDown9.Name = "numericUpDown9";
-            numericUpDown9.Size = new Size(120, 23);
-            numericUpDown9.TabIndex = 13;
+            nudIncubationTimeMax.Location = new Point(412, 24);
+            nudIncubationTimeMax.Name = "nudIncubationTimeMax";
+            nudIncubationTimeMax.Size = new Size(120, 23);
+            nudIncubationTimeMax.TabIndex = 13;
             // 
-            // numericUpDown10
+            // nudIncubationTimeMin
             // 
-            numericUpDown10.Location = new Point(268, 24);
-            numericUpDown10.Name = "numericUpDown10";
-            numericUpDown10.Size = new Size(120, 23);
-            numericUpDown10.TabIndex = 14;
+            nudIncubationTimeMin.Location = new Point(268, 24);
+            nudIncubationTimeMin.Name = "nudIncubationTimeMin";
+            nudIncubationTimeMin.Size = new Size(120, 23);
+            nudIncubationTimeMin.TabIndex = 14;
             // 
             // label16
             // 
@@ -461,19 +467,19 @@
             label17.TabIndex = 11;
             label17.Text = "/";
             // 
-            // numericUpDown11
+            // nudContagiousTimeMax
             // 
-            numericUpDown11.Location = new Point(412, 53);
-            numericUpDown11.Name = "numericUpDown11";
-            numericUpDown11.Size = new Size(120, 23);
-            numericUpDown11.TabIndex = 9;
+            nudContagiousTimeMax.Location = new Point(412, 53);
+            nudContagiousTimeMax.Name = "nudContagiousTimeMax";
+            nudContagiousTimeMax.Size = new Size(120, 23);
+            nudContagiousTimeMax.TabIndex = 9;
             // 
-            // numericUpDown12
+            // nudContagiousTimeMin
             // 
-            numericUpDown12.Location = new Point(268, 53);
-            numericUpDown12.Name = "numericUpDown12";
-            numericUpDown12.Size = new Size(120, 23);
-            numericUpDown12.TabIndex = 10;
+            nudContagiousTimeMin.Location = new Point(268, 53);
+            nudContagiousTimeMin.Name = "nudContagiousTimeMin";
+            nudContagiousTimeMin.Size = new Size(120, 23);
+            nudContagiousTimeMin.TabIndex = 10;
             // 
             // label18
             // 
@@ -493,26 +499,26 @@
             label19.TabIndex = 23;
             label19.Text = "/";
             // 
-            // numericUpDown13
+            // nudImmunityMax
             // 
-            numericUpDown13.Location = new Point(412, 111);
-            numericUpDown13.Name = "numericUpDown13";
-            numericUpDown13.Size = new Size(120, 23);
-            numericUpDown13.TabIndex = 21;
+            nudImmunityMax.Location = new Point(412, 111);
+            nudImmunityMax.Name = "nudImmunityMax";
+            nudImmunityMax.Size = new Size(120, 23);
+            nudImmunityMax.TabIndex = 21;
             // 
-            // numericUpDown14
+            // nudImmunityMin
             // 
-            numericUpDown14.Location = new Point(268, 111);
-            numericUpDown14.Name = "numericUpDown14";
-            numericUpDown14.Size = new Size(120, 23);
-            numericUpDown14.TabIndex = 22;
+            nudImmunityMin.Location = new Point(268, 111);
+            nudImmunityMin.Name = "nudImmunityMin";
+            nudImmunityMin.Size = new Size(120, 23);
+            nudImmunityMin.TabIndex = 22;
             // 
             // groupBox5
             // 
             groupBox5.Controls.Add(label24);
             groupBox5.Controls.Add(label25);
-            groupBox5.Controls.Add(numericUpDown19);
-            groupBox5.Controls.Add(numericUpDown20);
+            groupBox5.Controls.Add(nudHealMax);
+            groupBox5.Controls.Add(nudHealMin);
             groupBox5.Location = new Point(6, 290);
             groupBox5.Name = "groupBox5";
             groupBox5.Size = new Size(542, 59);
@@ -538,19 +544,21 @@
             label25.TabIndex = 15;
             label25.Text = "/";
             // 
-            // numericUpDown19
+            // nudHealMax
             // 
-            numericUpDown19.Location = new Point(412, 24);
-            numericUpDown19.Name = "numericUpDown19";
-            numericUpDown19.Size = new Size(120, 23);
-            numericUpDown19.TabIndex = 13;
+            nudHealMax.DecimalPlaces = 1;
+            nudHealMax.Location = new Point(412, 24);
+            nudHealMax.Name = "nudHealMax";
+            nudHealMax.Size = new Size(120, 23);
+            nudHealMax.TabIndex = 13;
             // 
-            // numericUpDown20
+            // nudHealMin
             // 
-            numericUpDown20.Location = new Point(268, 24);
-            numericUpDown20.Name = "numericUpDown20";
-            numericUpDown20.Size = new Size(120, 23);
-            numericUpDown20.TabIndex = 14;
+            nudHealMin.DecimalPlaces = 1;
+            nudHealMin.Location = new Point(268, 24);
+            nudHealMin.Name = "nudHealMin";
+            nudHealMin.Size = new Size(120, 23);
+            nudHealMin.TabIndex = 14;
             // 
             // groupBox6
             // 
@@ -581,28 +589,28 @@
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
             groupBox2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)numericUpDown1).EndInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown2).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudIncreaseResistanceAfterCuringMax).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudIncreaseResistanceAfterCuringMin).EndInit();
             groupBox3.ResumeLayout(false);
             groupBox3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown3).EndInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown4).EndInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown5).EndInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown6).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudInitialResistanceMax).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudInitialResistanceMin).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nusAdditionalResistancePerDayWhenInfectedMax).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudAdditionalResistancePerDayWhenInfectedMin).EndInit();
             groupBox4.ResumeLayout(false);
             groupBox4.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown7).EndInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown8).EndInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown9).EndInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown10).EndInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown11).EndInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown12).EndInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown13).EndInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown14).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudDmgDelayMax).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nucDmgDelayMin).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudIncubationTimeMax).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudIncubationTimeMin).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudContagiousTimeMax).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudContagiousTimeMin).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudImmunityMax).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudImmunityMin).EndInit();
             groupBox5.ResumeLayout(false);
             groupBox5.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown19).EndInit();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown20).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudHealMax).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudHealMin).EndInit();
             groupBox6.ResumeLayout(false);
             groupBox6.PerformLayout();
             ResumeLayout(false);
@@ -622,41 +630,41 @@
         private Button btnCreateVirus;
         private GroupBox groupBox1;
         private GroupBox groupBox2;
-        private NumericUpDown numericUpDown2;
-        private NumericUpDown numericUpDown1;
+        private NumericUpDown nudIncreaseResistanceAfterCuringMin;
+        private NumericUpDown nudIncreaseResistanceAfterCuringMax;
         private GroupBox groupBox3;
         private Label label8;
         private Label label9;
-        private NumericUpDown numericUpDown3;
-        private NumericUpDown numericUpDown4;
+        private NumericUpDown nudInitialResistanceMax;
+        private NumericUpDown nudInitialResistanceMin;
         private Label label7;
         private Label label6;
         private Label label10;
         private Label label11;
-        private NumericUpDown numericUpDown5;
-        private NumericUpDown numericUpDown6;
+        private NumericUpDown nusAdditionalResistancePerDayWhenInfectedMax;
+        private NumericUpDown nudAdditionalResistancePerDayWhenInfectedMin;
         private GroupBox groupBox5;
         private Label label24;
         private Label label25;
-        private NumericUpDown numericUpDown19;
-        private NumericUpDown numericUpDown20;
+        private NumericUpDown nudHealMax;
+        private NumericUpDown nudHealMin;
         private GroupBox groupBox4;
         private Label label18;
         private Label label19;
-        private NumericUpDown numericUpDown13;
-        private NumericUpDown numericUpDown14;
+        private NumericUpDown nudImmunityMax;
+        private NumericUpDown nudImmunityMin;
         private Label label12;
         private Label label13;
-        private NumericUpDown numericUpDown7;
-        private NumericUpDown numericUpDown8;
+        private NumericUpDown nudDmgDelayMax;
+        private NumericUpDown nucDmgDelayMin;
         private Label label14;
         private Label label15;
-        private NumericUpDown numericUpDown9;
-        private NumericUpDown numericUpDown10;
+        private NumericUpDown nudIncubationTimeMax;
+        private NumericUpDown nudIncubationTimeMin;
         private Label label16;
         private Label label17;
-        private NumericUpDown numericUpDown11;
-        private NumericUpDown numericUpDown12;
+        private NumericUpDown nudContagiousTimeMax;
+        private NumericUpDown nudContagiousTimeMin;
         private GroupBox groupBox6;
     }
 }
