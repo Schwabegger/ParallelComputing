@@ -16,12 +16,11 @@ namespace PandemicSimulator
         private Stopwatch _stopwatch = new Stopwatch();
         private int _frameCount = 0;
         private decimal _fps = 0;
+        private int _iterations = 0;
+        private Thread? _simulationThread;
 
         private int texture;
-
         private MyGLControl glControl;
-        BoolLock[,] _locks = null!;
-        private sealed record BoolLock { public bool IsNewPerson { get; set; } = false; };
         #endregion
 
         #region Form
@@ -31,7 +30,7 @@ namespace PandemicSimulator
             // In your form constructor or initialization code
             //SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
             //UpdateStyles();
-            
+
             Screen screen = Screen.PrimaryScreen;
             int width = screen.Bounds.Width;
             int height = screen.Bounds.Height;
@@ -54,7 +53,7 @@ namespace PandemicSimulator
         #region Control events
         private void tsmiStart_Click(object sender, EventArgs e)
         {
-            if (_config is not null && _config.IsValid())
+            if (_config is null || !_config.IsValid())
             {
                 MessageBox.Show("Please configure the simulation first!");
                 return;
@@ -62,38 +61,37 @@ namespace PandemicSimulator
 
             tsmiStart.Enabled = false;
             tsmiCancle.Enabled = true;
-
-            _locks = new BoolLock[_config!.Width, _config!.Height];
-            for (int x = 0; x < _config.Width; x++)
-            {
-                for (int y = 0; y < _config.Height; y++)
-                {
-                    _locks[x, y] = new BoolLock();
-                }
-            }
             _simulation = new Simulation(_config, simulationCancellationToken);
             //_simulation.Initialize();
             _worldBitmap = new Bitmap(_config.Width, _config.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             // Simulation Events
-#warning Simulation_OnSimulationUpdated is async void
             _simulation.OnSimulationUpdated += Simulation_OnSimulationUpdated;
             _simulation.OnSimulationFinished += Simulation_OnSimulationFinished;
 
-            _simulation.Run();
+            _simulationThread = new Thread(() => _simulation!.Run());
+            _simulationThread.IsBackground = true;
+            _simulationThread.Start();
+            //Task simulationTask = Task.Run(() => _simulation!.Run());
+            //_simulation.Run();
         }
 
         private void tsmiCancle_Click(object sender, EventArgs e)
         {
-
+            cancellationTokenSource.Cancel();
         }
 
         private void tsmiConfig_Click(object sender, EventArgs e)
         {
             using (var configurationForm = new ConfigurationForm())
             {
-                if (configurationForm.ShowDialog() == DialogResult.OK)
+                var dialogResult = configurationForm.ShowDialog();
+                if (dialogResult is DialogResult.OK or DialogResult.Cancel)
                 {
                     _config = configurationForm.Configuration;
+                    if (_config.IsValid())
+                    {
+                        tsmiStart.Enabled = true;
+                    }
                 }
             }
         }
@@ -105,12 +103,13 @@ namespace PandemicSimulator
             MessageBox.Show("Simulation finished!");
         }
 
-        private async void Simulation_OnSimulationUpdated(object? sender, SimulationUpdateEventArgs e)
+        private void Simulation_OnSimulationUpdated(object? sender, SimulationUpdateEventArgs e)
         {
-            await UpdateImgPartially(e.MovedPeople);
+            UpdateImgPartially(e.MovedPeople, e.PeopleDied);
             //UpdateTexture();
             glControl.WorldBitmap = _worldBitmap;
             glControl.UpdateTexture();
+            UpdateUI();
         }
         #endregion
 
@@ -134,95 +133,55 @@ namespace PandemicSimulator
             [PersonColor.ContagiousAndLowHealth] = Color.FromArgb(255, 255, 255, 255)
         };
 
-        private async Task UpdateImgPartially(IEnumerable<MovedPerson> movedPeople)
+        private void UpdateImgPartially(IEnumerable<MovedPerson> movedPeople, IEnumerable<Point> died)
         {
             BitmapData bmpData = _worldBitmap.LockBits(new Rectangle(0, 0, _worldBitmap.Width, _worldBitmap.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            ConcurrentDictionary<int, Task> tasks = new ConcurrentDictionary<int, Task>();
 
             try
             {
-                //Parallel.ForEach(movedPeople, (person) =>
-                //{
-                //    int index = person.PreviousPosition.Y * bmpData.Stride + person.PreviousPosition.X * 4; // Assuming 32bppArgb format
-                //    lock (_locks[person.PreviousPosition.X, person.PreviousPosition.Y])
-                //    {
-                //        if (_locks[person.PreviousPosition.X, person.PreviousPosition.Y].IsNewPerson)
-                //            return;
-                //        unsafe
-                //        {
-                //            byte* ptr = (byte*)bmpData.Scan0;
-                //            ptr[index] = 0;
-                //            ptr[index + 1] = 0;
-                //            ptr[index + 2] = 0;
-                //            ptr[index + 3] = 255;
-                //        }
-                //    }
-                //});
+                // Remove dead people from the bitmap
+                Parallel.ForEach(died, (point) =>
+                {
+                    int index = point.Y * bmpData.Stride + point.X * 4; // Assuming 32bppArgb format
+                    unsafe
+                    {
+                        byte* ptr = (byte*)bmpData.Scan0;
+                        ptr[index] = 0;
+                        ptr[index + 1] = 0;
+                        ptr[index + 2] = 0;
+                        ptr[index + 3] = 255;
+                    }
+                });
 
+                // Remove moved peoples previous position from the bitmap
                 Parallel.ForEach(movedPeople, (person) =>
                 {
-                    Task t1 = new(() =>
+                    int index = person.PreviousPosition.Y * bmpData.Stride + person.PreviousPosition.X * 4; // Assuming 32bppArgb format
+                    unsafe
                     {
-                        int index = person.PreviousPosition.Y * bmpData.Stride + person.PreviousPosition.X * 4; // Assuming 32bppArgb format
-                        lock (_locks[person.PreviousPosition.X, person.PreviousPosition.Y])
-                        {
-                            if (_locks[person.PreviousPosition.X, person.PreviousPosition.Y].IsNewPerson)
-                                return;
-                            unsafe
-                            {
-                                byte* ptr = (byte*)bmpData.Scan0;
-                                ptr[index] = 0;
-                                ptr[index + 1] = 0;
-                                ptr[index + 2] = 0;
-                                ptr[index + 3] = 255;
-                            }
-                        }
-                    });
-
-                    Task t2 = new(() =>
-                    {
-                        int index = person.CurrentPosition.Y * bmpData.Stride + person.CurrentPosition.X * 4; // Assuming 32bppArgb format
-                        Color color;
-
-                        if (person.IsInfected && person.IsContagious)
-                            color = _personColors[PersonColor.Contagious];
-                        else if (person.IsInfected)
-                            color = _personColors[PersonColor.Infected];
-                        else if (person.IsContagious)
-                            color = _personColors[PersonColor.Contagious];
-                        else if (person.Health < 50)
-                            color = _personColors[PersonColor.LowHealth];
-                        else if (person.IsInfected && person.Health < 50)
-                            color = _personColors[PersonColor.InfectedAndLowHealth];
-                        else if (person.IsContagious && person.Health < 50)
-                            color = _personColors[PersonColor.ContagiousAndLowHealth];
-                        else
-                            color = Color.Azure;
-
-                        lock (_locks[person.CurrentPosition.X, person.CurrentPosition.Y])
-                        {
-                            unsafe
-                            {
-                                byte* ptr = (byte*)bmpData.Scan0;
-                                ptr[index] = color.A;
-                                ptr[index + 1] = color.R;
-                                ptr[index + 2] = color.G;
-                                ptr[index + 3] = color.B;
-                            }
-                            _locks[person.CurrentPosition.X, person.CurrentPosition.Y].IsNewPerson = true;
-                        }
-                    });
-
-                    tasks.TryAdd(t1.Id, t1);
-                    tasks.TryAdd(t2.Id, t2);
-
-                    t1.Start();
-                    t2.Start();
+                        byte* ptr = (byte*)bmpData.Scan0;
+                        ptr[index] = 0;
+                        ptr[index + 1] = 0;
+                        ptr[index + 2] = 0;
+                        ptr[index + 3] = 255;
+                    }
                 });
-                await Task.WhenAll(tasks.Values.AsEnumerable());
-                Parallel.ForEach(movedPeople, (person, _) =>
+
+                // Draw moved peoples current position on the bitmap
+                Parallel.ForEach(movedPeople, (person) =>
                 {
-                    _locks[person.CurrentPosition.X, person.CurrentPosition.Y].IsNewPerson = false;
+                    int index = person.CurrentPosition.Y * bmpData.Stride + person.CurrentPosition.X * 4; // Assuming 32bppArgb format
+
+                    Color color = GetPixelColorBasedOnPersonCondition(person);
+
+                    unsafe
+                    {
+                        byte* ptr = (byte*)bmpData.Scan0;
+                        ptr[index] = color.A;
+                        ptr[index + 1] = color.R;
+                        ptr[index + 2] = color.G;
+                        ptr[index + 3] = color.B;
+                    }
                 });
             }
             catch (Exception ex)
@@ -233,6 +192,26 @@ namespace PandemicSimulator
             {
                 _worldBitmap.UnlockBits(bmpData);
             }
+        }
+
+        private Color GetPixelColorBasedOnPersonCondition(MovedPerson person)
+        {
+            Color color;
+            if (person.IsInfected && person.IsContagious)
+                color = _personColors[PersonColor.Contagious];
+            else if (person.IsInfected)
+                color = _personColors[PersonColor.Infected];
+            else if (person.IsContagious)
+                color = _personColors[PersonColor.Contagious];
+            else if (person.Health < 50)
+                color = _personColors[PersonColor.LowHealth];
+            else if (person.IsInfected && person.Health < 50)
+                color = _personColors[PersonColor.InfectedAndLowHealth];
+            else if (person.IsContagious && person.Health < 50)
+                color = _personColors[PersonColor.ContagiousAndLowHealth];
+            else
+                color = Color.Azure;
+            return color;
         }
 
         private void UpdateImg()
@@ -281,16 +260,14 @@ namespace PandemicSimulator
             return _random.Next(min, max);
         }
 
-        int _iterations = 0;
-        Thread? _simulationThread;
         private void tsmiTest_Click(object sender, EventArgs e)
         {
             _config ??= new SimulationConfig()
             {
                 Height = 300,
                 Width = 300,
-                InitialInfectionRate = 10,
-                PopulationSize = 100
+                InitialInfected = 10,
+                Population = 100
             };
             _worldBitmap = new Bitmap(_config.Width, _config.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             _stopwatch.Start();

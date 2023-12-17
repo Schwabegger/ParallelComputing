@@ -68,6 +68,7 @@ namespace PandemicSimulator
             // 
             // tsmiStart
             // 
+            tsmiStart.Enabled = false;
             tsmiStart.Name = "tsmiStart";
             tsmiStart.Size = new Size(180, 22);
             tsmiStart.Text = "Start";

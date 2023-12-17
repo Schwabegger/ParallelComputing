@@ -23,6 +23,7 @@ namespace Simulator
 
         public Point Position { get; set; } = position;
         public float Resistance { get; set; } = resistance;
+        public float AdditionalInfectionResistance { get; set; }
         public float Health { get; set; } = 100;
         public bool IsInfected { get; set; }
         public bool IsContagious { get; set; }

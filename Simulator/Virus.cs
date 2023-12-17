@@ -1,12 +1,21 @@
 ﻿namespace Simulator
 {
-    public sealed class Virus(string name, float infectionRate, float mortalityRate, float damageMin, float damageMax)
+    public sealed record Virus
     {
-        public string Name { get; set; } = name;
-        public float InfectionRate { get; set; } = infectionRate;
-        public float MortalityRate { get; set; } = mortalityRate;
-        public float DamageMin { get; set; } = damageMin;
-        public float DamageMax { get; set; } = damageMax;
+        public string Name { get; set; }
+        public float InfectionRate { get; set; }
+        public float MortalityRate { get; set; }
+        public float DamageMin { get; set; }
+        public float DamageMax { get; set; }
+
+        public Virus(string name, float infectionRate, float mortalityRate, float damageMin, float damageMax)
+        {
+            Name = name;
+            InfectionRate = infectionRate;
+            MortalityRate = mortalityRate;
+            DamageMin = damageMin;
+            DamageMax = damageMax;
+        }
 
         public bool IsValid() {
             return !string.IsNullOrWhiteSpace(Name)

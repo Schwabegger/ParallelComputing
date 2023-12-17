@@ -30,7 +30,7 @@ namespace Simulator
             if (!config.IsValid())
                 throw new InvalidOperationException("Invalid simulation configuration");
 
-            while (RunCondition())
+            do
             {
                 _worldUpdate = _world.Update();
                 OnSimulationUpdated?.Invoke(this, new SimulationUpdateEventArgs
@@ -41,14 +41,14 @@ namespace Simulator
                     MovedPeople = _worldUpdate.MovedPeople.ToArray(),
                     PeopleDied = _worldUpdate.DiedPeople.ToArray()
                 });
-            }
+            } while (RunCondition());
 
             OnSimulationFinished?.Invoke(this, EventArgs.Empty);
         }
 
         private bool RunCondition()
         {
-            return _worldUpdate is { PplAlive: > 0, PplInfected: > 0 } && !cancellationToken.IsCancellationRequested;
+            return _worldUpdate.PplAlive > 0 && _worldUpdate.PplInfected > 0 && !cancellationToken.IsCancellationRequested;
         }
     }
 }

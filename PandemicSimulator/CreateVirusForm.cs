@@ -11,10 +11,16 @@ namespace PandemicSimulator
             InitializeComponent();
 
             // Set the minimum values and increments for the numeric up down controls
-            nudInfectionRate.Increment = 0.01M;
-            nudInfectionRate.Minimum = 0.01M;
-            nudMortalityRate.Increment = 0.01M;
-            nudMortalityRate.Minimum = 0.01M;
+            nudInfectionRate.Increment = 0.1M;
+            nudInfectionRate.Minimum = 1M;
+            nudMortalityRate.Increment = 0.1M;
+            nudMortalityRate.Minimum = 1M;
+            nudDamageMin.Increment = 0.1M;
+            nudDamageMin.Minimum = 10M;
+            nudDamageMax.Increment = 0.1M;
+            nudDamageMax.Minimum = nudDamageMin.Minimum;
+            txtName.Text = "Test";
+            CenterToScreen();
         }
 
         /// <summary>
@@ -30,8 +36,8 @@ namespace PandemicSimulator
                 MessageBox.Show(errors);
                 return;
             }
-#warning TODO: Create a new virus with the given values
-            CreatedVirus = new Virus(txtName.Text, (float)nudInfectionRate.Value, (float)nudMortalityRate.Value, 0, 0);
+
+            CreatedVirus = new Virus(txtName.Text, (float)nudInfectionRate.Value, (float)nudMortalityRate.Value, (float)nudDamageMin.Value, (float)nudDamageMax.Value);
             DialogResult = DialogResult.OK;
             Close();
         }
