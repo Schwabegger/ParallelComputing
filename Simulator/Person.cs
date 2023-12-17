@@ -4,7 +4,7 @@ namespace Simulator
 {
     public enum MoveDirections
     {
-        Left, Right, Up, Down
+        Left, Right, Up, Down, UpLeft, UpRight, DownLeft, DownRight
     }
 
     public sealed class PersonMoveEventArgs : EventArgs
@@ -13,78 +13,59 @@ namespace Simulator
         public Point CurrentPosition { get; set; }
     }
 
-    public sealed class Person
+    public sealed class Person(Point position, float resistance)
     {
-        static int halfHealth; // Micro optimization
-        public Point Position { get; set; }
-        public float Vulnerability { get; set; }
-        public int Health { get; set; }
-        public bool IsInfected { get; set; }
-        public bool IsContagious { get; private set; }
-        public byte IncubationTime { get; set; }
-        public byte TimeSinceInfection { get; private set; }
-        public bool IsAlive { get; private set;}
-
         public event EventHandler? OnInfection;
         public event EventHandler? OnContagious;
-        public event EventHandler? OnHealed;
+        public event EventHandler? OnCured;
         public event EventHandler? OnDeath;
         public event EventHandler<PersonMoveEventArgs>? OnMoved;
 
-        Random rnd = new Random();
+        public Point Position { get; set; } = position;
+        public float Resistance { get; set; } = resistance;
+        public float Health { get; set; } = 100;
+        public bool IsInfected { get; set; }
+        public bool IsContagious { get; set; }
+        public byte IncubationTime { get; set; }
+        public byte DaysOfImmunity { get; set; }
+        public byte DmgDelay { get; set; }
+        public byte ContagiousTime { get; set; }
 
-        public Person(int health, float vulnerability, Point position)
+        public bool CanMove => Health > 0.5;
+
+        public void Infect()
         {
-            halfHealth = health / 2;
-            Health = health;
-            Vulnerability = vulnerability;
-            Position = position;
+            IsInfected = true;
+            OnInfection?.Invoke(this, EventArgs.Empty);
         }
 
-        public void Move()
+        public void MakeContagious()
         {
-            var previousPosition = Position;
-            MoveDirections direction = (MoveDirections)rnd.Next(0, 4);
-            _ = direction switch
-            {
-                MoveDirections.Left => Position = new Point(Position.X - 1, Position.Y),
-                MoveDirections.Right => Position = new Point(Position.X + 1, Position.Y),
-                MoveDirections.Up => Position = new Point(Position.X, Position.Y - 1),
-                MoveDirections.Down => Position = new Point(Position.X, Position.Y + 1),
-                _ => throw new NotImplementedException(),
-            };
-            OnMoved?.Invoke(this, new PersonMoveEventArgs { PreviousPosition = previousPosition, CurrentPosition = Position });
+            IsContagious = true;
+            OnContagious?.Invoke(this, EventArgs.Empty);
         }
 
-        public void HaveANiceDay()
+        public void Cure()
         {
-            if (Health > halfHealth)
-                Move();
+            IsInfected = false;
+            IsContagious = false;
+            OnCured?.Invoke(this, EventArgs.Empty);
+        }
 
-            if (IsContagious)
+        public void Die()
+        {
+            Health = 0;
+            OnDeath?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void Move(Point newPosition)
+        {
+            OnMoved?.Invoke(this, new PersonMoveEventArgs
             {
-
-            }
-            else if (IsInfected)
-            {
-                TimeSinceInfection++;
-                if(TimeSinceInfection > IncubationTime && !IsContagious)
-                {
-                    IsContagious = true;
-                    OnContagious?.Invoke(this, EventArgs.Empty);
-                }
-            }
-
-            // If health is 0 or less, the person is dead
-            if (Health <= 0)
-            {
-                IsInfected = false;
-                IsContagious = false;
-                IsAlive = false;
-
-                // Throw an event to notify the world that this person is dead
-                OnDeath?.Invoke(this, EventArgs.Empty);
-            }
+                PreviousPosition = Position,
+                CurrentPosition = newPosition
+            });
+            Position = newPosition;
         }
     }
 }

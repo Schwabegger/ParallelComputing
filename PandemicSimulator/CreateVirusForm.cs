@@ -30,7 +30,8 @@ namespace PandemicSimulator
                 MessageBox.Show(errors);
                 return;
             }
-            CreatedVirus = new Virus(txtName.Text, (float)nudInfectionRate.Value, (float)nudMortalityRate.Value);
+#warning TODO: Create a new virus with the given values
+            CreatedVirus = new Virus(txtName.Text, (float)nudInfectionRate.Value, (float)nudMortalityRate.Value, 0, 0);
             DialogResult = DialogResult.OK;
             Close();
         }

@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography;
-
-const byte SIZE = 10;
+﻿const byte SIZE = 10;
 const int AMOUNT = 100;
 const int SLEEP_MIN = 150;
 const int SLEEP_MAX = 450;

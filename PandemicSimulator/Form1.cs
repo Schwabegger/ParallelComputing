@@ -1,5 +1,3 @@
-using OpenTK;
-using OpenTK.Graphics.OpenGL;
 using Simulator;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -21,7 +19,7 @@ namespace PandemicSimulator
 
         private int texture;
 
-        private GLControl glControl;
+        private MyGLControl glControl;
         BoolLock[,] _locks = null!;
         private sealed record BoolLock { public bool IsNewPerson { get; set; } = false; };
         #endregion
@@ -38,69 +36,18 @@ namespace PandemicSimulator
             int width = screen.Bounds.Width;
             int height = screen.Bounds.Height;
 
+            width = 1920;
+            height = 1080;
 
             Size = new Size(width, height);
             this.CenterToScreen();
-            glControl = new GLControl();
-#warning REMOVE
-            glControl.VSync = false;
-            glControl.Dock = DockStyle.Fill;
-            glControl.Paint += GlControl_Paint;
+            glControl = new MyGLControl();
             Controls.Add(glControl);
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            InitializeOpenGLControl();
-        }
-
-        private void Form1_ResizeEnd(object sender, EventArgs e)
-        {
-            // does not work
-            glControl.Size = new Size(this.Width - 16, this.Height - 39);
-        }
-        #endregion
-
-        #region OpenGL
-        internal void InitializeOpenGLControl()
-        {
-            GL.Enable(EnableCap.Texture2D);
-            GL.GenTextures(1, out texture);
-            GL.BindTexture(TextureTarget.Texture2D, texture);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-        }
-
-        private void GlControl_Paint(object? sender, PaintEventArgs e)
-        {
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.BindTexture(TextureTarget.Texture2D, texture);
-            GL.Begin(PrimitiveType.Quads);
-            GL.TexCoord2(0, 0); GL.Vertex2(-1, -1);
-            GL.TexCoord2(1, 0); GL.Vertex2(1, -1);
-            GL.TexCoord2(1, 1); GL.Vertex2(1, 1);
-            GL.TexCoord2(0, 1); GL.Vertex2(-1, 1);
-            GL.End();
-            glControl.SwapBuffers();
-        }
-
-        internal void UpdateTexture()
-        {
-            BitmapData data = _worldBitmap.LockBits(new Rectangle(0, 0, _worldBitmap.Width, _worldBitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            try
-            {
-                GL.BindTexture(TextureTarget.Texture2D, texture);
-                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, data.Width, data.Height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-            finally
-            {
-                _worldBitmap.UnlockBits(data);
-                glControl.Invalidate();
-            }
+            glControl.InitializeOpenGLControl();
         }
         #endregion
 
@@ -113,6 +60,9 @@ namespace PandemicSimulator
                 return;
             }
 
+            tsmiStart.Enabled = false;
+            tsmiCancle.Enabled = true;
+
             _locks = new BoolLock[_config!.Width, _config!.Height];
             for (int x = 0; x < _config.Width; x++)
             {
@@ -122,7 +72,7 @@ namespace PandemicSimulator
                 }
             }
             _simulation = new Simulation(_config, simulationCancellationToken);
-            _simulation.Initialize();
+            //_simulation.Initialize();
             _worldBitmap = new Bitmap(_config.Width, _config.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             // Simulation Events
 #warning Simulation_OnSimulationUpdated is async void
@@ -158,7 +108,9 @@ namespace PandemicSimulator
         private async void Simulation_OnSimulationUpdated(object? sender, SimulationUpdateEventArgs e)
         {
             await UpdateImgPartially(e.MovedPeople);
-            UpdateTexture();
+            //UpdateTexture();
+            glControl.WorldBitmap = _worldBitmap;
+            glControl.UpdateTexture();
         }
         #endregion
 
@@ -182,7 +134,7 @@ namespace PandemicSimulator
             [PersonColor.ContagiousAndLowHealth] = Color.FromArgb(255, 255, 255, 255)
         };
 
-        private async Task UpdateImgPartially(MovedPerson[] movedPeople)
+        private async Task UpdateImgPartially(IEnumerable<MovedPerson> movedPeople)
         {
             BitmapData bmpData = _worldBitmap.LockBits(new Rectangle(0, 0, _worldBitmap.Width, _worldBitmap.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             ConcurrentDictionary<int, Task> tasks = new ConcurrentDictionary<int, Task>();
@@ -335,12 +287,10 @@ namespace PandemicSimulator
         {
             _config ??= new SimulationConfig()
             {
-                Height = 1400,
-                Width = 5120,
+                Height = 300,
+                Width = 300,
                 InitialInfectionRate = 10,
-                PersonHealth = 100,
-                PopulationSize = 100,
-                Virus = new Virus(Name: "Test", MortalityRate: 0.1f, InfectionRate: 0.1f)
+                PopulationSize = 100
             };
             _worldBitmap = new Bitmap(_config.Width, _config.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             _stopwatch.Start();
@@ -367,14 +317,15 @@ namespace PandemicSimulator
         {
             try
             {
+                glControl.WorldBitmap = _worldBitmap;
                 if (InvokeRequired)
                 {
-                    Invoke(UpdateTexture);
+                    Invoke(glControl.UpdateTexture);
                     Invoke(() => lblIterations.Text = $"Iterations: {_iterations}");
                 }
                 else
                 {
-                    UpdateTexture();
+                    glControl.UpdateTexture();
                 }
             }
             catch (Exception ex)

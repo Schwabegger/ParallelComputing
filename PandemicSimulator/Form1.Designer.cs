@@ -55,7 +55,7 @@ namespace PandemicSimulator
             menuStrip1.Items.AddRange(new ToolStripItem[] { startToolStripMentsmiSimulationuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(84, 24);
+            menuStrip1.Size = new Size(204, 24);
             menuStrip1.TabIndex = 2;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -69,33 +69,34 @@ namespace PandemicSimulator
             // tsmiStart
             // 
             tsmiStart.Name = "tsmiStart";
-            tsmiStart.Size = new Size(148, 22);
+            tsmiStart.Size = new Size(180, 22);
             tsmiStart.Text = "Start";
             tsmiStart.Click += tsmiStart_Click;
             // 
             // tsmiCancle
             // 
+            tsmiCancle.Enabled = false;
             tsmiCancle.Name = "tsmiCancle";
-            tsmiCancle.Size = new Size(148, 22);
+            tsmiCancle.Size = new Size(180, 22);
             tsmiCancle.Text = "Cancle";
             tsmiCancle.Click += tsmiCancle_Click;
             // 
             // toolStripSeparator2
             // 
             toolStripSeparator2.Name = "toolStripSeparator2";
-            toolStripSeparator2.Size = new Size(145, 6);
+            toolStripSeparator2.Size = new Size(177, 6);
             // 
             // tsmiConfig
             // 
             tsmiConfig.Name = "tsmiConfig";
-            tsmiConfig.Size = new Size(148, 22);
+            tsmiConfig.Size = new Size(180, 22);
             tsmiConfig.Text = "Configuration";
             tsmiConfig.Click += tsmiConfig_Click;
             // 
             // tsmiTest
             // 
             tsmiTest.Name = "tsmiTest";
-            tsmiTest.Size = new Size(148, 22);
+            tsmiTest.Size = new Size(180, 22);
             tsmiTest.Text = "Test";
             tsmiTest.Click += tsmiTest_Click;
             // 
@@ -133,7 +134,6 @@ namespace PandemicSimulator
             Name = "Form1";
             Text = "Form1";
             Load += Form1_Load;
-            ResizeEnd += Form1_ResizeEnd;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             ResumeLayout(false);
