@@ -6,12 +6,12 @@
         public int Height { get; set; }
         public int PopulationSize { get; set; }
         public int InitialInfectionRate { get; set; }
+        public float InitialResistanceMin { get; set; }
+        public float InitialResistanceMax { get; set; }
         public float IncreaseResistanceAfterCuringMin { get; set; }
         public float IncreaseResistanceAfterCuringMax { get; set; }
         public float AdditionalResistancePerDayWhenInfectedMin { get; set; }
         public float AdditionalResistancePerDayWhenInfectedMax { get; set; }
-        public float InitialResistanceMin { get; set; }
-        public float InitialResistanceMax { get; set; }
         public byte IncubationTimeMin { get; set; }
         public byte IncubationTimeMax { get; set; }
         public byte DaysOfImmunityMin { get; set; }

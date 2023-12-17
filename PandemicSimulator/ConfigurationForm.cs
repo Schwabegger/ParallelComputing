@@ -82,5 +82,15 @@ namespace PandemicSimulator
         {
             Configuration.Virus = (Virus)cbViruses.SelectedItem;
         }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void groupBox3_Enter(object sender, EventArgs e)
+        {
+
+        }
     }
 }
