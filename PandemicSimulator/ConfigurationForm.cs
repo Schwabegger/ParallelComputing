@@ -7,17 +7,20 @@ namespace PandemicSimulator
     public partial class ConfigurationForm : Form
     {
         static HashSet<Virus> Viruses = new();
-        public SimulationConfig Configuration { get; } = new();
+        public SimulationConfig Configuration { get; private set; } = new();
 
         public ConfigurationForm()
         {
             InitializeComponent();
-            InitialiseNumericUpDownControls();
-            CenterToScreen();
+            InitializeNumericUpDownControls();
             LoadVirusesFromDisk();
+            LoadConfigurationFromDisk();
+            CenterToParent();
+            // Disable resizing
+            FormBorderStyle = FormBorderStyle.FixedSingle;
         }
 
-        private void InitialiseNumericUpDownControls()
+        private void InitializeNumericUpDownControls()
         {
             // Set the minimum values and increments for the numeric up down controls for the world
             nudWidth.Increment = 1;
@@ -50,23 +53,31 @@ namespace PandemicSimulator
             // Set the minimum values and increments for the numeric up down controls for the durations
             nudIncubationTimeMin.Increment = 1;
             nudIncubationTimeMin.Minimum = 1;
+            nudIncubationTimeMin.Maximum = byte.MaxValue - 1;
             nudIncubationTimeMax.Increment = 1;
             nudIncubationTimeMax.Minimum = nudIncubationTimeMin.Minimum;
+            nudIncubationTimeMax.Maximum = nudIncubationTimeMin.Maximum;
 
             nudContagiousTimeMin.Increment = 1;
             nudContagiousTimeMin.Minimum = 1;
+            nudContagiousTimeMin.Maximum = byte.MaxValue - 1;
             nudContagiousTimeMax.Increment = 1;
             nudContagiousTimeMax.Minimum = nudContagiousTimeMin.Minimum;
+            nudContagiousTimeMax.Maximum = nudContagiousTimeMin.Maximum;
 
             nudDmgDelayMin.Increment = 1;
             nudDmgDelayMin.Minimum = 1;
+            nudDmgDelayMin.Maximum = byte.MaxValue - 1;
             nudDmgDelayMax.Increment = 1;
             nudDmgDelayMax.Minimum = nudDmgDelayMin.Minimum;
+            nudDmgDelayMax.Maximum = nudDmgDelayMin.Maximum;
 
             nudImmunityMin.Increment = 1;
             nudImmunityMin.Minimum = 1;
+            nudImmunityMin.Maximum = byte.MaxValue - 1;
             nudImmunityMax.Increment = 1;
             nudImmunityMax.Minimum = nudImmunityMin.Minimum;
+            nudImmunityMax.Maximum = nudImmunityMin.Maximum;
 
             // Set the minimum values and increments for the numeric up down controls for the health
             nudHealAmountMin.Increment = 0.1M;
@@ -88,6 +99,58 @@ namespace PandemicSimulator
                     Viruses.Add(virus);
                     cbViruses.Items.Add(virus);
                 }
+            }
+        }
+
+        private void LoadConfigurationFromDisk()
+        {
+            if (!File.Exists("Configuration.json"))
+                return;
+            var config = JsonSerializer.Deserialize<SimulationConfig>(File.ReadAllText("Configuration.json"));
+            if (config is not null)
+            {
+                Configuration = config;
+                AssignConfigurationToControls();
+            }
+        }
+
+        private void AssignConfigurationToControls()
+        {
+            // Use reflection to get the properties from Config
+            PropertyInfo[]? propertyInfos = Configuration.GetType().GetProperties();
+
+            if (propertyInfos is not null)
+            {
+                foreach (var propertyInfo in propertyInfos)
+                {
+                    // Get the value of the property
+                    object? value = propertyInfo.GetValue(Configuration);
+
+                    // Get the name of the property
+                    string propertyName = propertyInfo.Name;
+
+                    // Get the control with the name of the property
+                    Control? control = Controls.Find("nud" + propertyName, true).FirstOrDefault();
+
+                    if (control is not null)
+                    {
+                        // Convert the value to the appropriate type
+                        object? typedValue = Convert.ChangeType(value, ((NumericUpDown)(control)).Value.GetType());
+
+                        // Set the control value
+                        control.GetType().GetProperty("Value")?.SetValue(control, typedValue);
+                    }
+                    else
+                    {
+                        // Handle the case where the control is not found
+                        Console.WriteLine($"Control 'nud{propertyName}' not found.");
+                    }
+                }
+            }
+            else
+            {
+                // Handle the case where the property is not found
+                Console.WriteLine($"Properties not found.");
             }
         }
 
@@ -168,12 +231,19 @@ namespace PandemicSimulator
 
         private void ConfigurationForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (Viruses.Count == 0)
-                return;
+            // Save the configuration to disk
+            if (Configuration.IsValid())
+            {
+                var jsonConfig = JsonSerializer.Serialize(Configuration);
+                File.WriteAllText("Configuration.json", jsonConfig);
+            }
 
             // Save the viruses to disk
-            var json = JsonSerializer.Serialize(Viruses);
-            File.WriteAllText("Viruses.json", json);
+            if (Viruses.Count > 0)
+            {
+                var jsonViruses = JsonSerializer.Serialize(Viruses);
+                File.WriteAllText("Viruses.json", jsonViruses);
+            }
         }
     }
 }

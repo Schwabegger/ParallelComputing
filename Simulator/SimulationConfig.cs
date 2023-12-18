@@ -32,26 +32,52 @@
         /// <returns>True if the configuration is valid, false if not</returns>
         public bool IsValid()
         {
+            return CheckMaxValues() 
+                && CheckMinValues() 
+                && CheckMinSmallerMax()
+                && Virus is not null;
+        }
+
+        private bool CheckMinValues()
+        {
             return Width > 0
                 && Height > 0
                 && Population > 0
                 && InitialInfected > 0
-                && InitialInfected <= Population
-                && IncreaseResistanceAfterCuringMin > 0
-                && IncreaseResistanceAfterCuringMax >= IncreaseResistanceAfterCuringMin
-                && AdditionalResistancePerDayWhenInfectedMin > 0
-                && AdditionalResistancePerDayWhenInfectedMax >= AdditionalResistancePerDayWhenInfectedMin
-                && InitialResistanceMin > 0
-                && InitialResistanceMax >= InitialResistanceMin
+                && IncreaseResistanceAfterCuringMin >= 0
+                && AdditionalResistancePerDayWhenInfectedMin >= 0
+                && InitialResistanceMin >= 0
                 && IncubationTimeMin > 0
-                && IncubationTimeMax >= IncubationTimeMin
-                && ImmunityMin > 0
-                && ImmunityMax >= ImmunityMin
-                && DmgDelayMin > 0
-                && DmgDelayMax >= DmgDelayMin
-                && ContagiousTimeMin > 0
-                && ContagiousTimeMax >= ContagiousTimeMin
-                && Virus is not null;
+                && ImmunityMin >= 0
+                && DmgDelayMin >= 0
+                && ContagiousTimeMin > 0;
+        }
+
+        private bool CheckMaxValues()
+        {
+            return Width < int.MaxValue
+                && Height < int.MaxValue
+                && Population < int.MaxValue
+                && InitialInfected < int.MaxValue
+                && InitialInfected <= Population
+                && IncreaseResistanceAfterCuringMax < float.MaxValue
+                && AdditionalResistancePerDayWhenInfectedMax < float.MaxValue
+                && InitialResistanceMax < float.MaxValue
+                && IncubationTimeMax < byte.MaxValue - 1
+                && ImmunityMax < byte.MaxValue - 1
+                && DmgDelayMax < byte.MaxValue - 1
+                && ContagiousTimeMax < byte.MaxValue - 1;
+        }
+
+        private bool CheckMinSmallerMax()
+        {
+            return IncreaseResistanceAfterCuringMin <= IncreaseResistanceAfterCuringMax
+                && AdditionalResistancePerDayWhenInfectedMin <= AdditionalResistancePerDayWhenInfectedMax
+                && InitialResistanceMin <= InitialResistanceMax
+                && IncubationTimeMin <= IncubationTimeMax
+                && ImmunityMin <= ImmunityMax
+                && DmgDelayMin <= DmgDelayMax
+                && ContagiousTimeMin <= ContagiousTimeMax;
         }
     }
 }

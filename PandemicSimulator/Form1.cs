@@ -1,5 +1,6 @@
 using Simulator;
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Drawing.Imaging;
 
@@ -19,7 +20,6 @@ namespace PandemicSimulator
         private int _iterations = 0;
         private Thread? _simulationThread;
 
-        private int texture;
         private MyGLControl glControl;
         #endregion
 
@@ -40,6 +40,7 @@ namespace PandemicSimulator
 
             Size = new Size(width, height);
             this.CenterToScreen();
+
             glControl = new MyGLControl();
             Controls.Add(glControl);
         }
@@ -107,8 +108,8 @@ namespace PandemicSimulator
         {
             UpdateImgPartially(e.MovedPeople, e.PeopleDied);
             //UpdateTexture();
-            glControl.WorldBitmap = _worldBitmap;
-            glControl.UpdateTexture();
+            //glControl.WorldBitmap = _worldBitmap;
+            //glControl.UpdateTexture();
             UpdateUI();
         }
         #endregion
@@ -123,7 +124,7 @@ namespace PandemicSimulator
             ContagiousAndLowHealth
         }
 
-        readonly Dictionary<PersonColor, Color> _personColors = new()
+        static readonly IImmutableDictionary<PersonColor, Color> _personColors = ImmutableDictionary.CreateRange(new Dictionary<PersonColor, Color>()
         {
             [PersonColor.Healthy] = Color.FromArgb(255, 0, 255, 0),
             [PersonColor.Infected] = Color.FromArgb(255, 255, 0, 0),
@@ -131,7 +132,7 @@ namespace PandemicSimulator
             [PersonColor.LowHealth] = Color.FromArgb(255, 0, 0, 255),
             [PersonColor.InfectedAndLowHealth] = Color.FromArgb(255, 255, 0, 255),
             [PersonColor.ContagiousAndLowHealth] = Color.FromArgb(255, 255, 255, 255)
-        };
+        });
 
         private void UpdateImgPartially(IEnumerable<MovedPerson> movedPeople, IEnumerable<Point> died)
         {
@@ -194,7 +195,7 @@ namespace PandemicSimulator
             }
         }
 
-        private Color GetPixelColorBasedOnPersonCondition(MovedPerson person)
+        private static Color GetPixelColorBasedOnPersonCondition(MovedPerson person)
         {
             Color color;
             if (person.IsInfected && person.IsContagious)
@@ -216,7 +217,7 @@ namespace PandemicSimulator
 
         private void UpdateImg()
         {
-            BitmapData bmpData = _worldBitmap.LockBits(new Rectangle(0, 0, _worldBitmap.Width, _worldBitmap.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            BitmapData bmpData = _worldBitmap.LockBits(new Rectangle(0, 0, _worldBitmap.Width, _worldBitmap.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
 
             try
             {
@@ -256,7 +257,6 @@ namespace PandemicSimulator
         private static readonly Random _random = new();
         static int GetRandomValue(int min, int max)
         {
-            //lock (_random)
             return _random.Next(min, max);
         }
 
@@ -264,8 +264,8 @@ namespace PandemicSimulator
         {
             _config ??= new SimulationConfig()
             {
-                Height = 300,
-                Width = 300,
+                Height = 350,
+                Width = 350,
                 InitialInfected = 10,
                 Population = 100
             };

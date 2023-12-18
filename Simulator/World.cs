@@ -55,7 +55,8 @@ namespace Simulator
             for (var i = 0; i < _config.Population; i++)
             {
                 Point pos;
-                do {
+                do
+                {
                     pos = new Point(rnd.Next(0, _config.Width), rnd.Next(0, _config.Height));
                 } while (!_occupiedPositions.Add(pos));
 
@@ -88,7 +89,7 @@ namespace Simulator
             var person = (Person)sender!;
             Interlocked.Decrement(ref _pplInfected);
             Interlocked.Decrement(ref _pplAlive);
-            if(person.IsContagious) Interlocked.Decrement(ref _pplContagious);
+            if (person.IsContagious) Interlocked.Decrement(ref _pplContagious);
 
             person.OnInfection -= Person_OnInfection;
             person.OnContagious -= Person_OnContagious;
@@ -109,17 +110,23 @@ namespace Simulator
 
         public WorldUpdate Update()
         {
-            _movedPeople.Clear();
-            _diedPeople.Clear();
-            _retryMove.Clear();
+            _movedPeople = new();
+            _diedPeople = new();
+            _retryMove = new();
 
             // Shuffle people
             _people = _people.OrderBy(p => Guid.NewGuid()).ToArray();
 
-            HealAndTryToMovePerson();
-            RetryMovingPerson();
-            MakePersonInfectedContagiousTakeDamageAndDie();
-
+            try
+            {
+                HealAndTryToMovePerson();
+                RetryMovingPerson();
+                MakePersonInfectedContagiousTakeDamageAndDie();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
             // Remove dead people
             _people = _people.Where(p => p.Health > 0).ToArray();
 
@@ -149,7 +156,7 @@ namespace Simulator
                     {
                         person.Cure();
                         person.Resistance += new Random().Next((int)(_config.IncreaseResistanceAfterCuringMin * 10), (int)(_config.IncreaseResistanceAfterCuringMax * 10)) / 10f;
-                        person.DaysOfImmunity = (byte)rnd.Next(_config.ImmunityMin, _config.ImmunityMax);
+                        person.DaysOfImmunity = (byte)(rnd.Next(_config.ImmunityMin, _config.ImmunityMax) + 1);
                     }
                 }
 
@@ -254,7 +261,8 @@ namespace Simulator
         private void MovePerson(Person person)
         {
             Point newPosition;
-            do {
+            do
+            {
                 newPosition = GetNewPosition((MoveDirections)new Random().Next(0, Enum.GetValues(typeof(MoveDirections)).Length), person);
             } while (IsPersonAt(newPosition));
             _occupiedPositions.Add(newPosition);

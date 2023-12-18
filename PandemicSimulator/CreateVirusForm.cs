@@ -20,6 +20,8 @@ namespace PandemicSimulator
             nudDamageMax.Increment = 0.1M;
             nudDamageMax.Minimum = nudDamageMin.Minimum;
             txtName.Text = "Test";
+            // Disable resizing
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             CenterToScreen();
         }
 
