@@ -51,7 +51,9 @@ namespace PandemicSimulator
             lblContagious = new Label();
             lblMoved = new Label();
             lblDied = new Label();
+            groupBox1 = new GroupBox();
             menuStrip1.SuspendLayout();
+            groupBox1.SuspendLayout();
             SuspendLayout();
             // 
             // menuStrip1
@@ -131,7 +133,7 @@ namespace PandemicSimulator
             // lblAlive
             // 
             lblAlive.AutoSize = true;
-            lblAlive.Location = new Point(699, 9);
+            lblAlive.Location = new Point(6, 23);
             lblAlive.Name = "lblAlive";
             lblAlive.Size = new Size(13, 15);
             lblAlive.TabIndex = 6;
@@ -140,7 +142,7 @@ namespace PandemicSimulator
             // lblInfected
             // 
             lblInfected.AutoSize = true;
-            lblInfected.Location = new Point(699, 24);
+            lblInfected.Location = new Point(6, 38);
             lblInfected.Name = "lblInfected";
             lblInfected.Size = new Size(13, 15);
             lblInfected.TabIndex = 7;
@@ -149,7 +151,7 @@ namespace PandemicSimulator
             // lblContagious
             // 
             lblContagious.AutoSize = true;
-            lblContagious.Location = new Point(699, 39);
+            lblContagious.Location = new Point(6, 53);
             lblContagious.Name = "lblContagious";
             lblContagious.Size = new Size(13, 15);
             lblContagious.TabIndex = 8;
@@ -158,7 +160,7 @@ namespace PandemicSimulator
             // lblMoved
             // 
             lblMoved.AutoSize = true;
-            lblMoved.Location = new Point(699, 54);
+            lblMoved.Location = new Point(6, 68);
             lblMoved.Name = "lblMoved";
             lblMoved.Size = new Size(13, 15);
             lblMoved.TabIndex = 9;
@@ -167,22 +169,33 @@ namespace PandemicSimulator
             // lblDied
             // 
             lblDied.AutoSize = true;
-            lblDied.Location = new Point(699, 69);
+            lblDied.Location = new Point(6, 83);
             lblDied.Name = "lblDied";
             lblDied.Size = new Size(13, 15);
             lblDied.TabIndex = 10;
             lblDied.Text = "0";
+            // 
+            // groupBox1
+            // 
+            groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            groupBox1.Controls.Add(lblInfected);
+            groupBox1.Controls.Add(lblDied);
+            groupBox1.Controls.Add(lblAlive);
+            groupBox1.Controls.Add(lblMoved);
+            groupBox1.Controls.Add(lblContagious);
+            groupBox1.Location = new Point(618, 0);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Size = new Size(181, 107);
+            groupBox1.TabIndex = 11;
+            groupBox1.TabStop = false;
+            groupBox1.Text = "Stats";
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(lblDied);
-            Controls.Add(lblMoved);
-            Controls.Add(lblContagious);
-            Controls.Add(lblInfected);
-            Controls.Add(lblAlive);
+            Controls.Add(groupBox1);
             Controls.Add(lblIterations);
             Controls.Add(lblFps);
             Controls.Add(menuStrip1);
@@ -192,6 +205,8 @@ namespace PandemicSimulator
             Load += Form1_Load;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
+            groupBox1.ResumeLayout(false);
+            groupBox1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -212,5 +227,6 @@ namespace PandemicSimulator
         private Label lblContagious;
         private Label lblMoved;
         private Label lblDied;
+        private GroupBox groupBox1;
     }
 }

@@ -31,11 +31,13 @@ namespace Simulator
 
     public class World
     {
+        const int MOVEDIRECTIONSLENGTH = 8;
+
         static readonly ThreadLocal<Random> random = new ThreadLocal<Random>(() => new Random());
         Dictionary<Point, Person> _people = new();
         private readonly SimulationConfig _config;
         private List<MovedPerson> _movedPeople = new();
-        private List<Point> _diedPeople = new();
+        private ConcurrentBag<Point> _diedPeople = new();
         private List<Person> _retryMove = new();
         public Person[] People;
         private int _pplAlive;
@@ -294,13 +296,13 @@ namespace Simulator
             if (person.Health > 100)
                 person.Health = 100;
         }
-
+        
         private void MovePerson(Person person)
         {
             Point newPosition;
             do
             {
-                newPosition = GetNewPosition((MoveDirections)random.Value.Next(0, Enum.GetValues(typeof(MoveDirections)).Length), person);
+                newPosition = GetNewPosition((MoveDirections)random.Value.Next(0, MOVEDIRECTIONSLENGTH), person);
             } while (IsPersonAt(newPosition));
             _occupiedPositions.Add(newPosition);
             _occupiedPositions.Remove(person.Position);

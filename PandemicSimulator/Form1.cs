@@ -46,7 +46,7 @@ namespace PandemicSimulator
 
             //Size = new Size(width, height);
             //this.CenterToScreen();
-            //WindowState = FormWindowState.Maximized;
+            WindowState = FormWindowState.Maximized;
 
             glControl = new MyGLControl();
             Controls.Add(glControl);

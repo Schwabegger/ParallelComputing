@@ -21,6 +21,8 @@ namespace Simulator
         public event EventHandler? OnDeath;
         public event EventHandler<PersonMoveEventArgs>? OnMoved;
 
+        private readonly PersonMoveEventArgs _moveEventArgs = new();
+
         public Point Position { get; set; } = position;
         public float Resistance { get; set; } = resistance;
         public float AdditionalInfectionResistance { get; set; }
@@ -62,11 +64,9 @@ namespace Simulator
 
         public void Move(Point newPosition)
         {
-            OnMoved?.Invoke(this, new PersonMoveEventArgs
-            {
-                PreviousPosition = Position,
-                CurrentPosition = newPosition
-            });
+            _moveEventArgs.PreviousPosition = Position;
+            _moveEventArgs.CurrentPosition = newPosition;
+            OnMoved?.Invoke(this, _moveEventArgs);
             Position = newPosition;
         }
     }
