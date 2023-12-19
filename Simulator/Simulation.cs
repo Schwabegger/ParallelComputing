@@ -33,7 +33,7 @@ namespace Simulator
         /// Runs the simulation
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
-        public async Task Run()
+        public void Run()
         {
             if (!config.IsValid())
                 throw new InvalidOperationException("Invalid simulation configuration");

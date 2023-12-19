@@ -44,9 +44,9 @@ namespace PandemicSimulator
             width = 1920;
             height = 1080;
 
-            //Size = new Size(width, height);
+            Size = new Size(width, height);
             //this.CenterToScreen();
-            WindowState = FormWindowState.Maximized;
+            //WindowState = FormWindowState.Maximized;
 
             glControl = new MyGLControl();
             Controls.Add(glControl);
@@ -99,7 +99,6 @@ namespace PandemicSimulator
             _stopwatch.Start();
             timer1.Start();
             //Task simulationTask = Task.Run(() => _simulation!.Run());
-            //_simulation.Run();
         }
 
         private void tsmiCancle_Click(object sender, EventArgs e)
@@ -246,22 +245,21 @@ namespace PandemicSimulator
 
         private static Color GetPixelColorBasedOnPersonCondition(MovedPerson person)
         {
-            Color color;
             if (person.IsInfected && person.IsContagious)
-                color = _personColors[PersonColor.Contagious];
-            else if (person.IsInfected)
-                color = _personColors[PersonColor.Infected];
-            else if (person.IsContagious)
-                color = _personColors[PersonColor.Contagious];
-            else if (person.Health < 50)
-                color = _personColors[PersonColor.LowHealth];
-            else if (person.IsInfected && person.Health < 50)
-                color = _personColors[PersonColor.InfectedAndLowHealth];
-            else if (person.IsContagious && person.Health < 50)
-                color = _personColors[PersonColor.ContagiousAndLowHealth];
-            else
-                color = Color.Green;
-            return color;
+                return _personColors[PersonColor.Contagious];
+            if (person.Health < 50)
+            {
+                if (person.IsInfected)
+                    return _personColors[PersonColor.InfectedAndLowHealth];
+                if (person.IsContagious)
+                    return _personColors[PersonColor.ContagiousAndLowHealth];
+                return _personColors[PersonColor.LowHealth];
+            }
+            if (person.IsInfected)
+                return _personColors[PersonColor.Infected];
+            if (person.IsContagious)
+                return _personColors[PersonColor.Contagious];
+            return Color.Green;
         }
 
         private void UpdateImg()

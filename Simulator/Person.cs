@@ -33,9 +33,8 @@ namespace Simulator
         public byte DaysOfImmunity { get; set; }
         public byte DmgDelay { get; set; }
         public byte ContagiousTime { get; set; }
-        public bool IsSurrounded { get; set; }
 
-        public bool CanMove => Health > 0.5 && !IsSurrounded;
+        public bool CanMove => Health > 0.5;
 
         public void Infect()
         {
@@ -68,6 +67,11 @@ namespace Simulator
             _moveEventArgs.CurrentPosition = newPosition;
             OnMoved?.Invoke(this, _moveEventArgs);
             Position = newPosition;
+        }
+
+        public bool IsSusceptibleToInfection()
+        {
+            return !IsInfected && !IsContagious && DaysOfImmunity <= 0;
         }
     }
 }
