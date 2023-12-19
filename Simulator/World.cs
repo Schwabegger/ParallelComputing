@@ -1,4 +1,7 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Drawing;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Simulator
 {
@@ -28,11 +31,13 @@ namespace Simulator
 
     public class World
     {
+        static readonly ThreadLocal<Random> random = new ThreadLocal<Random>(() => new Random());
+        Dictionary<Point, Person> _people = new();
         private readonly SimulationConfig _config;
         private List<MovedPerson> _movedPeople = new();
         private List<Point> _diedPeople = new();
         private List<Person> _retryMove = new();
-        private Person[] _people;
+        public Person[] People;
         private int _pplAlive;
         private int _pplInfected;
         private int _pplContagious;
@@ -42,7 +47,7 @@ namespace Simulator
         public World(SimulationConfig config)
         {
             _config = config;
-            _people = new Person[config.Population];
+            People = new Person[config.Population];
             _pplAlive = config.Population;
             _pplInfected = config.InitialInfected;
             Initialize();
@@ -50,7 +55,7 @@ namespace Simulator
 
         public void Initialize()
         {
-            var rnd = new Random();
+            var rnd = random.Value;
 
             for (var i = 0; i < _config.Population; i++)
             {
@@ -60,19 +65,19 @@ namespace Simulator
                     pos = new Point(rnd.Next(0, _config.Width), rnd.Next(0, _config.Height));
                 } while (!_occupiedPositions.Add(pos));
 
-                _people[i] = new Person(pos, (float)rnd.Next((int)(_config.InitialResistanceMin * 10), (int)(_config.InitialResistanceMax * 10)) / 10);
-                _people[i].OnInfection += Person_OnInfection;
-                _people[i].OnContagious += Person_OnContagious;
-                _people[i].OnDeath += Person_OnDeath;
-                _people[i].OnCured += Person_OnCured;
-                _people[i].OnMoved += Person_OnMoved;
+                People[i] = new Person(pos, (float)rnd.Next((int)(_config.InitialResistanceMin * 10), (int)(_config.InitialResistanceMax * 10)) / 10);
+                People[i].OnInfection += Person_OnInfection;
+                People[i].OnContagious += Person_OnContagious;
+                People[i].OnDeath += Person_OnDeath;
+                People[i].OnCured += Person_OnCured;
+                People[i].OnMoved += Person_OnMoved;
             }
 
             for (var i = 0; i < _config.InitialInfected; i++)
             {
-                _people[i].IsInfected = true;
-                _people[i].IncubationTime = (byte)rnd.Next(_config.IncubationTimeMin, _config.IncubationTimeMax);
-                _people[i].DmgDelay = (byte)rnd.Next(_config.DmgDelayMin, _config.DmgDelayMax);
+                People[i].IsInfected = true;
+                People[i].IncubationTime = (byte)rnd.Next(_config.IncubationTimeMin, _config.IncubationTimeMax);
+                People[i].DmgDelay = (byte)rnd.Next(_config.DmgDelayMin, _config.DmgDelayMax);
             }
         }
 
@@ -115,10 +120,11 @@ namespace Simulator
             _retryMove = new();
 
             // Shuffle people
-            _people = _people.OrderBy(p => Guid.NewGuid()).ToArray();
+            People = People.OrderBy(p => Guid.NewGuid()).ToArray();
 
             try
             {
+                _people = new(People.Length);
                 HealAndTryToMovePerson();
                 RetryMovingPerson();
                 MakePersonInfectedContagiousTakeDamageAndDie();
@@ -128,15 +134,14 @@ namespace Simulator
                 Console.WriteLine(e);
             }
             // Remove dead people
-            _people = _people.Where(p => p.Health > 0).ToArray();
+            People = People.Where(p => p.Health > 0).ToArray();
 
             return new(_movedPeople, _diedPeople, _pplAlive, _pplInfected, _pplContagious);
         }
 
         private void MakePersonInfectedContagiousTakeDamageAndDie()
         {
-            Random rnd = new();
-            foreach (var person in _people)
+            Parallel.ForEach(People, person =>
             {
                 if (person.IsInfected && !person.IsContagious)
                 {
@@ -144,30 +149,39 @@ namespace Simulator
                     if (person.IncubationTime <= 0)
                     {
                         person.MakeContagious();
-                        person.ContagiousTime = (byte)rnd.Next(_config.ContagiousTimeMin, _config.ContagiousTimeMax);
+                        person.ContagiousTime = (byte)(random.Value.Next(_config.ContagiousTimeMin, _config.ContagiousTimeMax));
                     }
                 }
+            });
 
+            Parallel.ForEach(People, async person =>
+            {
                 if (person.IsContagious)
                 {
-                    InfectNeighbors(person, rnd);
+                    InfectNeighborsParallelSafe(person, random.Value);
                     person.ContagiousTime--;
                     if (person.ContagiousTime <= 0)
                     {
                         person.Cure();
-                        person.Resistance += new Random().Next((int)(_config.IncreaseResistanceAfterCuringMin * 10), (int)(_config.IncreaseResistanceAfterCuringMax * 10)) / 10f;
-                        person.DaysOfImmunity = (byte)(rnd.Next(_config.ImmunityMin, _config.ImmunityMax) + 1);
+                        person.Resistance += random.Value.Next((int)(_config.IncreaseResistanceAfterCuringMin * 10), (int)(_config.IncreaseResistanceAfterCuringMax * 10)) / 1000f;
+                        person.DaysOfImmunity = (byte)(random.Value.Next(_config.ImmunityMin, _config.ImmunityMax) + 1);
                     }
                 }
+            });
 
+            Parallel.ForEach(People, person =>
+            {
                 if (person.IsInfected || person.IsContagious)
                 {
                     person.DmgDelay--;
                     if (person.DmgDelay <= 0)
                         DamagePerson(person);
-                    person.AdditionalInfectionResistance += new Random().Next((int)(_config.AdditionalResistancePerDayWhenInfectedMin * 10), (int)(_config.AdditionalResistancePerDayWhenInfectedMax * 10)) / 10f;
+                    person.AdditionalInfectionResistance += random.Value.Next((int)(_config.AdditionalResistancePerDayWhenInfectedMin * 10), (int)(_config.AdditionalResistancePerDayWhenInfectedMax * 10)) / 10f;
                 }
+            });
 
+            Parallel.ForEach(People, person =>
+            {
                 if (person.DaysOfImmunity > 0)
                     person.DaysOfImmunity--;
 
@@ -177,54 +191,77 @@ namespace Simulator
                     _diedPeople.Add(person.Position);
                     _occupiedPositions.Remove(person.Position);
                 }
-            }
+            });
         }
 
         private void RetryMovingPerson()
         {
-            foreach (var person in _retryMove.Where(person => !IsSurrounded(person)).Where(person => person.CanMove))
+            Parallel.ForEach(People, person =>
             {
-                MovePerson(person);
-            }
-        }
+                if (!IsSurrounded(person))
+                    person.IsSurrounded = false;
+                else
+                    _people[person.Position] = person;
+            });
 
-        private void HealAndTryToMovePerson()
-        {
-            foreach (var person in _people)
+            foreach (var person in _retryMove)
             {
-                if (person.Health < 100.0)
-                    HealPerson(person);
-                if (IsSurrounded(person))
-                {
-                    _retryMove.Add(person);
-                    continue;
-                }
-
                 if (person.CanMove)
                     MovePerson(person);
             }
         }
 
-        private void InfectNeighbors(Person person, Random rnd)
+        private void HealAndTryToMovePerson()
         {
-            for (var x = person.Position.X - 1; x <= person.Position.X + 1; x++)
+            Parallel.ForEach(People, person =>
+            {
+                if (person.Health < 100.0)
+                    HealPerson(person);
+            });
+
+            Parallel.ForEach(People, person =>
+            {
+                if (IsSurrounded(person))
+                {
+                    _retryMove.Add(person);
+                    person.IsSurrounded = true;
+                }
+            });
+
+            foreach (var person in People)
+            {
+                if (person.CanMove)
+                    MovePerson(person);
+            }
+        }
+
+        private void InfectNeighborsParallelSafe(Person person, Random rnd)
+        {
+            int width = _config.Width;
+            int height = _config.Height;
+
+            Parallel.For(person.Position.X - 1, person.Position.X + 2, x =>
             {
                 for (var y = person.Position.Y - 1; y <= person.Position.Y + 1; y++)
                 {
-                    // Wrap around
-                    if (x < 0)
-                        x = _config.Width - 1;
-                    else if (x >= _config.Width)
-                        x = 0;
-                    if (y < 0)
-                        y = _config.Height - 1;
-                    else if (y >= _config.Height)
-                        y = 0;
+                    var wrappedX = (x + width) % width;
+                    var wrappedY = (y + height) % height;
 
-                    var pos = new Point(x, y);
-                    if (IsPersonAt(pos))
+                    CheckAndInfectSafe(new Point(wrappedX, wrappedY), rnd);
+                }
+            });
+        }
+
+        private void CheckAndInfectSafe(Point pos, Random rnd)
+        {
+            if (IsPersonAt(pos))
+            {
+                var p = _people[pos];
+
+                if (!p.IsInfected && !p.IsContagious && p.DaysOfImmunity <= 0)
+                {
+                    lock (p)
                     {
-                        var p = _people.First(p => p.Position == pos);
                         if (!p.IsInfected && !p.IsContagious && p.DaysOfImmunity <= 0)
                         {
                             p.Infect();
@@ -238,8 +275,8 @@ namespace Simulator
 
         private void DamagePerson(Person person)
         {
-            var baseDamage = new Random().Next((int)(_config.Virus.DamageMin * 10), (int)(_config.Virus.DamageMax * 10)) / 10f;
-            var damage = baseDamage * (1 - person.Resistance - person.AdditionalInfectionResistance);
+            var baseDamage = random.Value.Next((int)(_config.Virus.DamageMin * 10), (int)(_config.Virus.DamageMax * 10)) / 10f;
+            var damage = baseDamage * (1 - person.Resistance / 100f - person.AdditionalInfectionResistance / 100f);
             person.Health -= damage;
         }
 
@@ -247,11 +284,11 @@ namespace Simulator
         {
             if (person.IsInfected || person.IsContagious)
             {
-                person.Health += person.Health * new Random().Next((int)(_config.HealAmountMin * 10), (int)(_config.HealAmountMax * 10)) / 10;
+                person.Health += person.Health * random.Value.Next((int)(_config.HealAmountMin * 10), (int)(_config.HealAmountMax * 10)) / 1000f;
             }
             else
             {
-                person.Health = 100f * new Random().Next((int)(_config.HealAmountMin * 10), (int)(_config.HealAmountMax * 10)) / 10;
+                person.Health = 100f * random.Value.Next((int)(_config.HealAmountMin * 10), (int)(_config.HealAmountMax * 10)) / 1000f;
             }
 
             if (person.Health > 100)
@@ -263,11 +300,12 @@ namespace Simulator
             Point newPosition;
             do
             {
-                newPosition = GetNewPosition((MoveDirections)new Random().Next(0, Enum.GetValues(typeof(MoveDirections)).Length), person);
+                newPosition = GetNewPosition((MoveDirections)random.Value.Next(0, Enum.GetValues(typeof(MoveDirections)).Length), person);
             } while (IsPersonAt(newPosition));
             _occupiedPositions.Add(newPosition);
             _occupiedPositions.Remove(person.Position);
             person.Move(newPosition);
+            _people[newPosition] = person;
         }
 
         private bool IsSurrounded(Person person)

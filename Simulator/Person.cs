@@ -31,8 +31,9 @@ namespace Simulator
         public byte DaysOfImmunity { get; set; }
         public byte DmgDelay { get; set; }
         public byte ContagiousTime { get; set; }
+        public bool IsSurrounded { get; set; }
 
-        public bool CanMove => Health > 0.5;
+        public bool CanMove => Health > 0.5 && !IsSurrounded;
 
         public void Infect()
         {

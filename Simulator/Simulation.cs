@@ -12,9 +12,17 @@ namespace Simulator
         public required Point[] PeopleDied { get; set; }
     }
 
+    public sealed class SimulationEndEventArgs : EventArgs
+    {
+        public required int PeopleAlive { get; set; }
+        public required int PeopleInfected { get; set; }
+        public required int PeopleContagious { get; set; }
+        public required Person[] People { get; set; }
+    }
+
     public sealed class Simulation(SimulationConfig config, CancellationToken cancellationToken)
     {
-        public event EventHandler? OnSimulationFinished;
+        public event EventHandler<SimulationEndEventArgs>? OnSimulationFinished;
         public event EventHandler<SimulationUpdateEventArgs>? OnSimulationUpdated;
 
         private readonly World _world = new(config);
@@ -25,7 +33,7 @@ namespace Simulator
         /// Runs the simulation
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
-        public void Run()
+        public async Task Run()
         {
             if (!config.IsValid())
                 throw new InvalidOperationException("Invalid simulation configuration");
@@ -43,7 +51,13 @@ namespace Simulator
                 });
             } while (RunCondition());
 
-            OnSimulationFinished?.Invoke(this, EventArgs.Empty);
+            OnSimulationFinished?.Invoke(this, new SimulationEndEventArgs
+            { 
+                People = _world.People.ToArray(),
+                PeopleAlive = _worldUpdate.PplAlive,
+                PeopleInfected = _worldUpdate.PplInfected,
+                PeopleContagious = _worldUpdate.PplContagious
+            });
         }
 
         private bool RunCondition()

@@ -118,6 +118,7 @@
             // nudInitialInfected
             // 
             nudInitialInfected.Location = new Point(94, 104);
+            nudInitialInfected.Maximum = new decimal(new int[] { 10000000, 0, 0, 0 });
             nudInitialInfected.Name = "nudInitialInfected";
             nudInitialInfected.Size = new Size(120, 23);
             nudInitialInfected.TabIndex = 2;
@@ -126,6 +127,7 @@
             // nudPopulation
             // 
             nudPopulation.Location = new Point(94, 75);
+            nudPopulation.Maximum = new decimal(new int[] { 10000000, 0, 0, 0 });
             nudPopulation.Name = "nudPopulation";
             nudPopulation.Size = new Size(120, 23);
             nudPopulation.TabIndex = 3;
@@ -134,6 +136,7 @@
             // nudHeight
             // 
             nudHeight.Location = new Point(94, 46);
+            nudHeight.Maximum = new decimal(new int[] { 10000000, 0, 0, 0 });
             nudHeight.Name = "nudHeight";
             nudHeight.Size = new Size(120, 23);
             nudHeight.TabIndex = 4;
@@ -169,6 +172,7 @@
             // nudWidth
             // 
             nudWidth.Location = new Point(94, 17);
+            nudWidth.Maximum = new decimal(new int[] { 10000000, 0, 0, 0 });
             nudWidth.Name = "nudWidth";
             nudWidth.Size = new Size(120, 23);
             nudWidth.TabIndex = 8;

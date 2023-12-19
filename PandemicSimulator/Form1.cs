@@ -20,6 +20,12 @@ namespace PandemicSimulator
         private int _iterations = 0;
         private Thread? _simulationThread;
 
+        private int _alive = 0;
+        private int _infected = 0;
+        private int _contagious = 0;
+        private int _died = 0;
+        private int _moved = 0;
+
         private MyGLControl glControl;
         #endregion
 
@@ -38,8 +44,9 @@ namespace PandemicSimulator
             width = 1920;
             height = 1080;
 
-            Size = new Size(width, height);
-            this.CenterToScreen();
+            //Size = new Size(width, height);
+            //this.CenterToScreen();
+            //WindowState = FormWindowState.Maximized;
 
             glControl = new MyGLControl();
             Controls.Add(glControl);
@@ -59,9 +66,25 @@ namespace PandemicSimulator
                 MessageBox.Show("Please configure the simulation first!");
                 return;
             }
+            _iterations = 0;
+            _frameCount = 0;
+            _stopwatch.Reset();
+
 
             tsmiStart.Enabled = false;
             tsmiCancle.Enabled = true;
+            if (_simulationThread is not null && _simulationThread.IsAlive)
+            {
+                cancellationTokenSource.Cancel();
+                _simulationThread.Join(1000);
+                if (_simulationThread.IsAlive)
+                {
+                    MessageBox.Show("Simulation thread is still alive!");
+                    return;
+                }
+            }
+            cancellationTokenSource = new();
+            simulationCancellationToken = cancellationTokenSource.Token;
             _simulation = new Simulation(_config, simulationCancellationToken);
             //_simulation.Initialize();
             _worldBitmap = new Bitmap(_config.Width, _config.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
@@ -71,7 +94,10 @@ namespace PandemicSimulator
 
             _simulationThread = new Thread(() => _simulation!.Run());
             _simulationThread.IsBackground = true;
+            _simulationThread.Name = "Simulation Thread";
             _simulationThread.Start();
+            _stopwatch.Start();
+            timer1.Start();
             //Task simulationTask = Task.Run(() => _simulation!.Run());
             //_simulation.Run();
         }
@@ -99,13 +125,26 @@ namespace PandemicSimulator
         #endregion
 
         #region Handle events
-        private void Simulation_OnSimulationFinished(object? sender, EventArgs e)
+        private void Simulation_OnSimulationFinished(object? sender, SimulationEndEventArgs e)
         {
-            MessageBox.Show("Simulation finished!");
+            UpdateUI();
+            Invoke(() =>
+            {
+                tsmiStart.Enabled = true;
+                tsmiCancle.Enabled = false;
+            });
+            MessageBox.Show($"Simulation finished!\nAlive: {e.PeopleAlive}\nInfected: {e.PeopleInfected}\nContagious: {e.PeopleContagious}", "Simulation finished");
         }
 
         private void Simulation_OnSimulationUpdated(object? sender, SimulationUpdateEventArgs e)
         {
+            Interlocked.Increment(ref _frameCount);
+            Interlocked.Increment(ref _iterations);
+            _alive = e.PeopleAlive;
+            _infected = e.PeopleInfected;
+            _contagious = e.PeopleContagious;
+            _moved = e.MovedPeople.Length;
+            _died = e.PeopleDied.Length;
             UpdateImgPartially(e.MovedPeople, e.PeopleDied);
             //UpdateTexture();
             //glControl.WorldBitmap = _worldBitmap;
@@ -124,7 +163,7 @@ namespace PandemicSimulator
             ContagiousAndLowHealth
         }
 
-        static readonly IImmutableDictionary<PersonColor, Color> _personColors = ImmutableDictionary.CreateRange(new Dictionary<PersonColor, Color>()
+        static readonly IImmutableDictionary<PersonColor, Color> _personColors1 = ImmutableDictionary.CreateRange(new Dictionary<PersonColor, Color>()
         {
             [PersonColor.Healthy] = Color.FromArgb(255, 0, 255, 0),
             [PersonColor.Infected] = Color.FromArgb(255, 255, 0, 0),
@@ -132,6 +171,16 @@ namespace PandemicSimulator
             [PersonColor.LowHealth] = Color.FromArgb(255, 0, 0, 255),
             [PersonColor.InfectedAndLowHealth] = Color.FromArgb(255, 255, 0, 255),
             [PersonColor.ContagiousAndLowHealth] = Color.FromArgb(255, 255, 255, 255)
+        });
+
+        static readonly IImmutableDictionary<PersonColor, Color> _personColors = ImmutableDictionary.CreateRange(new Dictionary<PersonColor, Color>()
+        {
+            [PersonColor.Healthy] = Color.Green,
+            [PersonColor.Infected] = Color.Yellow,
+            [PersonColor.Contagious] = Color.Purple,
+            [PersonColor.LowHealth] = Color.MediumVioletRed,
+            [PersonColor.InfectedAndLowHealth] = Color.Red,
+            [PersonColor.ContagiousAndLowHealth] = Color.DarkRed
         });
 
         private void UpdateImgPartially(IEnumerable<MovedPerson> movedPeople, IEnumerable<Point> died)
@@ -178,10 +227,10 @@ namespace PandemicSimulator
                     unsafe
                     {
                         byte* ptr = (byte*)bmpData.Scan0;
-                        ptr[index] = color.A;
-                        ptr[index + 1] = color.R;
-                        ptr[index + 2] = color.G;
-                        ptr[index + 3] = color.B;
+                        ptr[index] = color.B;
+                        ptr[index + 1] = color.G;
+                        ptr[index + 2] = color.R;
+                        ptr[index + 3] = color.A;
                     }
                 });
             }
@@ -211,7 +260,7 @@ namespace PandemicSimulator
             else if (person.IsContagious && person.Health < 50)
                 color = _personColors[PersonColor.ContagiousAndLowHealth];
             else
-                color = Color.Azure;
+                color = Color.Green;
             return color;
         }
 
@@ -299,6 +348,11 @@ namespace PandemicSimulator
                 {
                     Invoke(glControl.UpdateTexture);
                     Invoke(() => lblIterations.Text = $"Iterations: {_iterations}");
+                    Invoke(() => lblAlive.Text = $"Alive: {_alive}");
+                    Invoke(() => lblInfected.Text = $"Infected: {_infected}");
+                    Invoke((Delegate)(() => lblContagious.Text = $"Contagious: {_contagious}"));
+                    Invoke(() => lblDied.Text = $"Died: {_died}");
+                    Invoke(() => lblMoved.Text = $"Moved: {_moved}");
                 }
                 else
                 {
