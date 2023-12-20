@@ -45,7 +45,7 @@ namespace PandemicSimulator
             height = 1080;
 
             Size = new Size(width, height);
-            //this.CenterToScreen();
+            this.CenterToScreen();
             //WindowState = FormWindowState.Maximized;
 
             glControl = new MyGLControl();
@@ -145,9 +145,6 @@ namespace PandemicSimulator
             _moved = e.MovedPeople.Length;
             _died = e.PeopleDied.Length;
             UpdateImgPartially(e.MovedPeople, e.PeopleDied);
-            //UpdateTexture();
-            //glControl.WorldBitmap = _worldBitmap;
-            //glControl.UpdateTexture();
             UpdateUI();
         }
         #endregion
@@ -352,10 +349,10 @@ namespace PandemicSimulator
                     Invoke(() => lblDied.Text = $"Died: {_died}");
                     Invoke(() => lblMoved.Text = $"Moved: {_moved}");
                 }
-                else
-                {
-                    glControl.UpdateTexture();
-                }
+                //else
+                //{
+                //    glControl.UpdateTexture();
+                //}
             }
             catch (Exception ex)
             {

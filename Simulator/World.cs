@@ -247,7 +247,8 @@ namespace Simulator
             {
                 if (person.IsInfected)
                 {
-                    person.DmgDelay--;
+                    if (person.DmgDelay > 0)
+                        person.DmgDelay--;
                     if (person.DmgDelay <= 0)
                         DamagePerson(person);
                     if (_config.AdditionalResistancePerDayWhenInfectedMax > 0)
