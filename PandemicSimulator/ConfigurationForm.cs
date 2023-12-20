@@ -35,55 +35,63 @@ namespace PandemicSimulator
             nudInitialInfected.Minimum = 1;
 
             // Set the minimum values and increments for the numeric up down controls for the person
+            nudInitialResistanceMin.Minimum = 0.0M;
             nudInitialResistanceMin.Increment = 0.1M;
-            nudInitialResistanceMin.Minimum = 3.0M;
-            nudInitialResistanceMax.Increment = 0.1M;
+            nudInitialResistanceMin.Maximum = 100M;
+            nudInitialResistanceMax.Maximum = nudInitialResistanceMin.Maximum;
+            nudInitialResistanceMax.Increment = nudInitialResistanceMin.Increment;
             nudInitialResistanceMax.Minimum = nudInitialResistanceMin.Minimum;
 
+            nudIncreaseResistanceAfterCuringMin.Minimum = 0.0M;
             nudIncreaseResistanceAfterCuringMin.Increment = 0.1M;
-            nudIncreaseResistanceAfterCuringMin.Minimum = 0.1M;
-            nudIncreaseResistanceAfterCuringMax.Increment = 0.1M;
+            nudIncreaseResistanceAfterCuringMin.Maximum = 100M;
+            nudIncreaseResistanceAfterCuringMax.Maximum = nudIncreaseResistanceAfterCuringMin.Maximum;
+            nudIncreaseResistanceAfterCuringMax.Increment = nudIncreaseResistanceAfterCuringMin.Increment;
             nudIncreaseResistanceAfterCuringMax.Minimum = nudIncreaseResistanceAfterCuringMin.Minimum;
 
+            nudAdditionalResistancePerDayWhenInfectedMin.Minimum = 0.0M;
             nudAdditionalResistancePerDayWhenInfectedMin.Increment = 0.1M;
-            nudAdditionalResistancePerDayWhenInfectedMin.Minimum = 0.1M;
-            nudAdditionalResistancePerDayWhenInfectedMax.Increment = 0.1M;
+            nudAdditionalResistancePerDayWhenInfectedMin.Maximum = 100M;
+            nudAdditionalResistancePerDayWhenInfectedMax.Maximum = nudAdditionalResistancePerDayWhenInfectedMin.Maximum;
+            nudAdditionalResistancePerDayWhenInfectedMax.Increment = nudAdditionalResistancePerDayWhenInfectedMin.Increment;
             nudAdditionalResistancePerDayWhenInfectedMax.Minimum = nudAdditionalResistancePerDayWhenInfectedMin.Minimum;
 
             // Set the minimum values and increments for the numeric up down controls for the durations
+            nudIncubationTimeMin.Minimum = 0;
             nudIncubationTimeMin.Increment = 1;
-            nudIncubationTimeMin.Minimum = 1;
             nudIncubationTimeMin.Maximum = byte.MaxValue - 1;
-            nudIncubationTimeMax.Increment = 1;
+            nudIncubationTimeMax.Increment = nudIncubationTimeMin.Increment;
             nudIncubationTimeMax.Minimum = nudIncubationTimeMin.Minimum;
             nudIncubationTimeMax.Maximum = nudIncubationTimeMin.Maximum;
 
-            nudContagiousTimeMin.Increment = 1;
             nudContagiousTimeMin.Minimum = 1;
+            nudContagiousTimeMin.Increment = 1;
             nudContagiousTimeMin.Maximum = byte.MaxValue - 1;
-            nudContagiousTimeMax.Increment = 1;
+            nudContagiousTimeMax.Increment = nudContagiousTimeMin.Increment;
             nudContagiousTimeMax.Minimum = nudContagiousTimeMin.Minimum;
             nudContagiousTimeMax.Maximum = nudContagiousTimeMin.Maximum;
 
+            nudDmgDelayMin.Minimum = 0;
             nudDmgDelayMin.Increment = 1;
-            nudDmgDelayMin.Minimum = 1;
             nudDmgDelayMin.Maximum = byte.MaxValue - 1;
-            nudDmgDelayMax.Increment = 1;
+            nudDmgDelayMax.Increment = nudDmgDelayMin.Increment;
             nudDmgDelayMax.Minimum = nudDmgDelayMin.Minimum;
             nudDmgDelayMax.Maximum = nudDmgDelayMin.Maximum;
 
+            nudImmunityMin.Minimum = 0;
             nudImmunityMin.Increment = 1;
-            nudImmunityMin.Minimum = 1;
             nudImmunityMin.Maximum = byte.MaxValue - 1;
-            nudImmunityMax.Increment = 1;
+            nudImmunityMax.Increment = nudImmunityMin.Increment;
             nudImmunityMax.Minimum = nudImmunityMin.Minimum;
             nudImmunityMax.Maximum = nudImmunityMin.Maximum;
 
             // Set the minimum values and increments for the numeric up down controls for the health
+            nudHealAmountMin.Minimum = 0.0M;
             nudHealAmountMin.Increment = 0.1M;
-            nudHealAmountMin.Minimum = 5.0M;
-            nudHealAmountMax.Increment = 0.1M;
+            nudHealAmountMin.Maximum = 100M;
+            nudHealAmountMax.Increment = nudHealAmountMin.Increment;
             nudHealAmountMax.Minimum = nudHealAmountMin.Minimum;
+            nudHealAmountMax.Maximum = nudHealAmountMin.Maximum;
         }
 
         private void LoadVirusesFromDisk()

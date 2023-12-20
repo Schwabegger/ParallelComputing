@@ -57,7 +57,7 @@
         {
             return Width < int.MaxValue
                 && Height < int.MaxValue
-                && Population < int.MaxValue
+                && Population < Width * Height
                 && InitialInfected < int.MaxValue
                 && InitialInfected <= Population
                 && IncreaseResistanceAfterCuringMax < float.MaxValue

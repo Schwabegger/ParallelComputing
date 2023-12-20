@@ -32,6 +32,9 @@ namespace Simulator
     public class World
     {
         const int MOVEDIRECTIONSLENGTH = 8;
+        private readonly bool[] _infectionRate = new bool[100];
+        private volatile int _infectionRateIndex = 0;
+        private static readonly MoveDirections[] moveDirections = (MoveDirections[])Enum.GetValues(typeof(MoveDirections));
 
         static readonly ThreadLocal<Random> random = new ThreadLocal<Random>(() => new Random(int.MaxValue));
         Dictionary<Point, Person> _people = new();
@@ -82,6 +85,11 @@ namespace Simulator
                 People[i].IncubationTime = (byte)rnd.Next(_config.IncubationTimeMin, _config.IncubationTimeMax);
                 People[i].DmgDelay = (byte)rnd.Next(_config.DmgDelayMin, _config.DmgDelayMax);
             }
+
+            // randomly assign infection rate
+            for (var i = 0; i < _config.Virus.InfectionRate; i++)
+                _infectionRate[i] = true;
+            rnd.Shuffle(_infectionRate);
         }
 
         #region Handle Events
@@ -123,10 +131,7 @@ namespace Simulator
             _retryMove.Clear();
             _survivedPeople.Clear();
 
-            // Shuffle people
-            List<Person> list = new List<Person>();
-            foreach (var person in People.OrderBy(p => Guid.NewGuid())) list.Add(person);
-            People = list.ToArray();
+            random.Value.Shuffle(People);
 
             try
             {
@@ -230,20 +235,23 @@ namespace Simulator
                     if (person.ContagiousTime <= 0)
                     {
                         person.Cure();
-                        person.Resistance += random.Value.Next((int)(_config.IncreaseResistanceAfterCuringMin * 10), (int)(_config.IncreaseResistanceAfterCuringMax * 10)) / 1000f;
-                        person.DaysOfImmunity = (byte)(random.Value.Next(_config.ImmunityMin, _config.ImmunityMax) + 1);
+                        if (_config.IncreaseResistanceAfterCuringMax > 0)
+                            person.Resistance += random.Value.Next((int)(_config.IncreaseResistanceAfterCuringMin * 10), (int)(_config.IncreaseResistanceAfterCuringMax * 10)) / 1000f;
+                        if (_config.ImmunityMax > 0)
+                            person.DaysOfImmunity = (byte)(random.Value.Next(_config.ImmunityMin, _config.ImmunityMax) + 1);
                     }
                 }
             });
 
             Parallel.ForEach(People, person =>
             {
-                if (person.IsInfected || person.IsContagious)
+                if (person.IsInfected)
                 {
                     person.DmgDelay--;
                     if (person.DmgDelay <= 0)
                         DamagePerson(person);
-                    person.AdditionalInfectionResistance += random.Value.Next((int)(_config.AdditionalResistancePerDayWhenInfectedMin * 10), (int)(_config.AdditionalResistancePerDayWhenInfectedMax * 10)) / 10f;
+                    if (_config.AdditionalResistancePerDayWhenInfectedMax > 0)
+                        person.AdditionalInfectionResistance += random.Value.Next((int)(_config.AdditionalResistancePerDayWhenInfectedMin * 10), (int)(_config.AdditionalResistancePerDayWhenInfectedMax * 10)) / 10f;
                 }
             });
 
@@ -277,7 +285,8 @@ namespace Simulator
 
         private void HealAndTryToMovePerson()
         {
-            Parallel.ForEach(People, HealPerson);
+            if (_config.HealAmountMax > 0)
+                Parallel.ForEach(People, HealPerson);
 
             foreach (var person in People)
             {
@@ -310,22 +319,32 @@ namespace Simulator
         {
             if (_people.TryGetValue(pos, out var p) && p.IsSusceptibleToInfection())
             {
-                p.Infect();
-                p.IncubationTime = (byte)rnd.Next(_config.IncubationTimeMin, _config.IncubationTimeMax);
-                p.DmgDelay = (byte)rnd.Next(_config.DmgDelayMin, _config.DmgDelayMax);
+                var i = Interlocked.Increment(ref _infectionRateIndex);
+                if (_infectionRate[i % 100])
+                {
+                    p.Infect();
+                    p.IncubationTime = (byte)rnd.Next(_config.IncubationTimeMin, _config.IncubationTimeMax);
+                    p.DmgDelay = (byte)rnd.Next(_config.DmgDelayMin, _config.DmgDelayMax);
+                }
             }
         }
 
         private void DamagePerson(Person person)
         {
             var baseDamage = random.Value.Next((int)(_config.Virus.DamageMin * 10), (int)(_config.Virus.DamageMax * 10)) / 10f;
-            var damage = baseDamage * (1 - person.Resistance / 100f - person.AdditionalInfectionResistance / 100f);
+            float damage;
+            if (person.Resistance > 0 || person.AdditionalInfectionResistance > 0)
+                damage = baseDamage * (1 - person.Resistance / 100f - person.AdditionalInfectionResistance / 100f);
+            else
+                damage = baseDamage;
             person.Health -= damage;
         }
 
         private void HealPerson(Person person)
         {
-            if (Math.Abs(person.Health - 98) <= 2)
+            if (person.Health == 100)
+                return;
+            if (Math.Abs(person.Health - 100) < 5)
             {
                 person.Health = 100;
                 return;
@@ -341,7 +360,6 @@ namespace Simulator
 
         private void MovePerson(Person person)
         {
-            MoveDirections[] moveDirections = (MoveDirections[])Enum.GetValues(typeof(MoveDirections));
             random.Value.Shuffle(moveDirections);
             Point newPosition = default;
             foreach (var moveDirection in moveDirections)

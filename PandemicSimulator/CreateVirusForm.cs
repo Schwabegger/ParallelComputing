@@ -11,14 +11,16 @@ namespace PandemicSimulator
             InitializeComponent();
 
             // Set the minimum values and increments for the numeric up down controls
-            nudInfectionRate.Increment = 0.1M;
-            nudInfectionRate.Minimum = 1M;
+            nudInfectionRate.Increment = 1;
+            nudInfectionRate.Minimum = 1;
             nudMortalityRate.Increment = 0.1M;
             nudMortalityRate.Minimum = 1M;
             nudDamageMin.Increment = 0.1M;
-            nudDamageMin.Minimum = 10M;
-            nudDamageMax.Increment = 0.1M;
+            nudDamageMin.Minimum = 1M;
+            nudDamageMax.Increment = nudDamageMin.Increment;
             nudDamageMax.Minimum = nudDamageMin.Minimum;
+            nudDamageMax.Maximum = 100M;
+            nudDamageMin.Maximum = nudDamageMax.Maximum;
             txtName.Text = "Test";
             // Disable resizing
             FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -39,7 +41,7 @@ namespace PandemicSimulator
                 return;
             }
 
-            CreatedVirus = new Virus(txtName.Text, (float)nudInfectionRate.Value, (float)nudMortalityRate.Value, (float)nudDamageMin.Value, (float)nudDamageMax.Value);
+            CreatedVirus = new Virus(txtName.Text, (byte)nudInfectionRate.Value, (float)nudMortalityRate.Value, (float)nudDamageMin.Value, (float)nudDamageMax.Value);
             DialogResult = DialogResult.OK;
             Close();
         }

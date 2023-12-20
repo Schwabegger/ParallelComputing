@@ -131,8 +131,8 @@ namespace PandemicSimulator
             {
                 tsmiStart.Enabled = true;
                 tsmiCancle.Enabled = false;
+                MessageBox.Show(this, $"Simulation finished!\nAlive: {e.PeopleAlive}\nInfected: {e.PeopleInfected}\nContagious: {e.PeopleContagious}", "Simulation finished");
             });
-            MessageBox.Show($"Simulation finished!\nAlive: {e.PeopleAlive}\nInfected: {e.PeopleInfected}\nContagious: {e.PeopleContagious}", "Simulation finished");
         }
 
         private void Simulation_OnSimulationUpdated(object? sender, SimulationUpdateEventArgs e)
