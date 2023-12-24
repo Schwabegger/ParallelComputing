@@ -17,7 +17,6 @@ namespace Simulator
         public required int PeopleAlive { get; set; }
         public required int PeopleInfected { get; set; }
         public required int PeopleContagious { get; set; }
-        public required Person[] People { get; set; }
     }
 
     public sealed class Simulation(SimulationConfig config, CancellationToken cancellationToken)
@@ -25,7 +24,7 @@ namespace Simulator
         public event EventHandler<SimulationEndEventArgs>? OnSimulationFinished;
         public event EventHandler<SimulationUpdateEventArgs>? OnSimulationUpdated;
 
-        private readonly World _world = new(config);
+        private readonly IWorld _world = new WorldArray(config);
 
         private WorldUpdate _worldUpdate;
 
@@ -53,7 +52,6 @@ namespace Simulator
 
             OnSimulationFinished?.Invoke(this, new SimulationEndEventArgs
             { 
-                People = _world.People.ToArray(),
                 PeopleAlive = _worldUpdate.PplAlive,
                 PeopleInfected = _worldUpdate.PplInfected,
                 PeopleContagious = _worldUpdate.PplContagious

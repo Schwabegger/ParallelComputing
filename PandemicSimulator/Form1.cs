@@ -1,5 +1,4 @@
 using Simulator;
-using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Drawing.Imaging;

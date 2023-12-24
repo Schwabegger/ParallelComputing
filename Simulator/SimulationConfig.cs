@@ -8,7 +8,7 @@
         public int InitialInfected { get; set; }
         public float InitialResistanceMin { get; set; }
         public float InitialResistanceMax { get; set; }
-        public float MacResistance { get; set; }
+        public float MaxResistance { get; set; }
         public float IncreaseResistanceAfterCuringMin { get; set; }
         public float IncreaseResistanceAfterCuringMax { get; set; }
         public float AdditionalResistancePerDayWhenInfectedMin { get; set; }
