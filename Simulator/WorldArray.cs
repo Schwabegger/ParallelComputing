@@ -28,7 +28,7 @@ namespace Simulator
         const int MOVEDIRECTIONSLENGTH = 8;
         private readonly bool[] _infectionRate = new bool[100];
         private volatile int _infectionRateIndex = 0;
-        private static readonly MoveDirections[] moveDirections = (MoveDirections[])Enum.GetValues(typeof(MoveDirections));
+        private static readonly MoveDirection[] moveDirections = (MoveDirection[])Enum.GetValues(typeof(MoveDirection));
 
         static readonly ThreadLocal<Random> random = new(() => new Random(int.MaxValue));
         private ConcurrentBag<Point> _diedPeople = new();
@@ -80,16 +80,31 @@ namespace Simulator
         public void Initialize()
         {
             var rnd = random.Value!;
-
+            int x; int y;
             for (var i = 0; i < _population; i++)
             {
-                Point pos;
-                do
+                // move right if the position is already occupied to enhance
+                x = rnd.Next(0, _width);
+                y = rnd.Next(0, _height);
+                while (_world[y, x] is not null)
                 {
-                    pos = new Point(rnd.Next(0, _width), rnd.Next(0, _height));
-                } while (_world[pos.Y, pos.X] is not null);
+                    x++;
+                    if (x >= _width)
+                    {
+                        x = 0;
+                        y++;
+                        if (y >= _height)
+                            y = 0;
+                    }
+                }
 
-                var person = new Person(pos, (float)rnd.Next((int)(_initialResistanceMin * 10), (int)(_initialResistanceMax * 10)) / 10);
+                //do
+                //{
+                //    x = rnd.Next(0, _width);
+                //    y = rnd.Next(0, _height);
+                //} while (_world[y, x] is not null);
+
+                var person = new Person(new Point(x, y), (float)rnd.Next((int)(_initialResistanceMin * 10), (int)(_initialResistanceMax * 10)) / 10);
 
                 person.OnInfection += Person_OnInfection;
                 person.OnContagious += Person_OnContagious;
@@ -98,7 +113,7 @@ namespace Simulator
                 person.OnMoved += Person_OnMoved;
 
                 _people[i] = person;
-                _world[pos.Y, pos.X] = _people[i];
+                _world[y, x] = _people[i];
             }
 
             for (var i = 0; i < _initialInfected; i++)
@@ -479,8 +494,9 @@ namespace Simulator
 
         private void MovePerson(Person person)
         {
-            random.Value.Shuffle(moveDirections);
+            random.Value!.Shuffle(moveDirections);
             Point newPosition = default;
+
             foreach (var moveDirection in moveDirections)
             {
                 newPosition = GetNewPosition(moveDirection, person);
@@ -490,6 +506,36 @@ namespace Simulator
             _world[newPosition.Y, newPosition.X] = person;
             _world[person.Position.Y, person.Position.X] = null;
             person.Move(newPosition);
+        }
+
+        private void MovePerson2(Person person)
+        {
+            random.Value.Shuffle(moveDirections);
+            int newX = person.Position.X;
+            int newY = person.Position.Y;
+
+            foreach (var moveDirection in moveDirections)
+            {
+                var (dx, dy) = moveDirection switch
+                {
+                    MoveDirection.Left => (-1, 0),
+                    MoveDirection.Right => (1, 0),
+                    MoveDirection.Up => (0, -1),
+                    MoveDirection.Down => (0, 1),
+                    MoveDirection.UpLeft => (-1, -1),
+                    MoveDirection.UpRight => (1, -1),
+                    MoveDirection.DownLeft => (-1, 1),
+                    MoveDirection.DownRight => (1, 1),
+                    _ => throw new ArgumentOutOfRangeException()
+                };
+
+                newX = (dx + _width) % _width;
+                newY = (dy + _height) % _height;
+            }
+
+            _world[newY, newX] = person;
+            _world[person.Position.Y, person.Position.X] = null;
+            //person.Move(newX, newY);
         }
 
         private bool IsSurrounded(Person person)
@@ -509,18 +555,18 @@ namespace Simulator
             return true;
         }
 
-        private Point GetNewPosition(MoveDirections direction, Person person)
+        private Point GetNewPosition(MoveDirection direction, Person person)
         {
             var (dx, dy) = direction switch
             {
-                MoveDirections.Left => (-1, 0),
-                MoveDirections.Right => (1, 0),
-                MoveDirections.Up => (0, -1),
-                MoveDirections.Down => (0, 1),
-                MoveDirections.UpLeft => (-1, -1),
-                MoveDirections.UpRight => (1, -1),
-                MoveDirections.DownLeft => (-1, 1),
-                MoveDirections.DownRight => (1, 1),
+                MoveDirection.Left => (-1, 0),
+                MoveDirection.Right => (1, 0),
+                MoveDirection.Up => (0, -1),
+                MoveDirection.Down => (0, 1),
+                MoveDirection.UpLeft => (-1, -1),
+                MoveDirection.UpRight => (1, -1),
+                MoveDirection.DownLeft => (-1, 1),
+                MoveDirection.DownRight => (1, 1),
                 _ => throw new ArgumentOutOfRangeException()
             };
 

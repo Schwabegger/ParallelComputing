@@ -86,7 +86,7 @@ namespace PandemicSimulator
             simulationCancellationToken = cancellationTokenSource.Token;
             _simulation = new Simulation(_config, simulationCancellationToken);
             //_simulation.Initialize();
-            _worldBitmap = new Bitmap(_config.Width, _config.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            _worldBitmap = new Bitmap(_config.Width, _config.Height, PixelFormat.Format32bppArgb);
             // Simulation Events
             _simulation.OnSimulationUpdated += Simulation_OnSimulationUpdated;
             _simulation.OnSimulationFinished += Simulation_OnSimulationFinished;
@@ -99,10 +99,23 @@ namespace PandemicSimulator
             timer1.Start();
             //Task simulationTask = Task.Run(() => _simulation!.Run());
         }
-
+        bool _updatingUI = false;
         private void tsmiCancle_Click(object sender, EventArgs e)
         {
-            cancellationTokenSource.Cancel();
+            cancellationTokenSource.CancelAsync();
+            Task.Run(() =>
+            {
+                while (_simulationThread is not null && _simulationThread.IsAlive || _updatingUI)
+                {
+                    Thread.Sleep(100);
+                }
+                Invoke(() =>
+                {
+                    _worldBitmap.Dispose();
+                    tsmiStart.Enabled = true;
+                    tsmiCancle.Enabled = false;
+                });
+            });
         }
 
         private void tsmiConfig_Click(object sender, EventArgs e)
@@ -143,8 +156,10 @@ namespace PandemicSimulator
             _contagious = e.PeopleContagious;
             _moved = e.MovedPeople.Length;
             _died = e.PeopleDied.Length;
+            _updatingUI = true;
             UpdateImgPartially(e.MovedPeople, e.PeopleDied);
             UpdateUI();
+            _updatingUI = false;
         }
         #endregion
 

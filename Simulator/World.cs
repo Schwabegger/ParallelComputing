@@ -32,7 +32,7 @@ namespace Simulator
         const int MOVEDIRECTIONSLENGTH = 8;
         private readonly bool[] _infectionRate = new bool[100];
         private volatile int _infectionRateIndex = 0;
-        private static readonly MoveDirections[] moveDirections = (MoveDirections[])Enum.GetValues(typeof(MoveDirections));
+        private static readonly MoveDirection[] moveDirections = (MoveDirection[])Enum.GetValues(typeof(MoveDirection));
 
         static readonly ThreadLocal<Random> random = new ThreadLocal<Random>(() => new Random(int.MaxValue));
         Dictionary<Point, Person> _people = new();
@@ -391,18 +391,18 @@ namespace Simulator
             return true;
         }
 
-        private Point GetNewPosition(MoveDirections direction, Person person)
+        private Point GetNewPosition(MoveDirection direction, Person person)
         {
             var (dx, dy) = direction switch
             {
-                MoveDirections.Left => (-1, 0),
-                MoveDirections.Right => (1, 0),
-                MoveDirections.Up => (0, -1),
-                MoveDirections.Down => (0, 1),
-                MoveDirections.UpLeft => (-1, -1),
-                MoveDirections.UpRight => (1, -1),
-                MoveDirections.DownLeft => (-1, 1),
-                MoveDirections.DownRight => (1, 1),
+                MoveDirection.Left => (-1, 0),
+                MoveDirection.Right => (1, 0),
+                MoveDirection.Up => (0, -1),
+                MoveDirection.Down => (0, 1),
+                MoveDirection.UpLeft => (-1, -1),
+                MoveDirection.UpRight => (1, -1),
+                MoveDirection.DownLeft => (-1, 1),
+                MoveDirection.DownRight => (1, 1),
                 _ => throw new ArgumentOutOfRangeException()
             };
 

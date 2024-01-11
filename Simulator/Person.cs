@@ -2,7 +2,7 @@
 
 namespace Simulator
 {
-    public enum MoveDirections
+    public enum MoveDirection
     {
         Left, Right, Up, Down, UpLeft, UpRight, DownLeft, DownRight
     }
@@ -68,6 +68,38 @@ namespace Simulator
             OnMoved?.Invoke(this, _moveEventArgs);
             Position = newPosition;
         }
+
+        public bool IsSusceptibleToInfection()
+        {
+            return !IsInfected && !IsContagious && DaysOfImmunity <= 0;
+        }
+    }
+
+
+    public sealed class NewPersonMoveEventArgs : EventArgs
+    {
+        public int PreviousPositionY { get; set; }
+        public int PreviousPositionX { get; set; }
+
+        public int CurrentPositionY { get; set; }
+        public int CurrentPositionX { get; set; }
+    }
+
+    public sealed class PersonNew(int y, int x, float resistance)
+    {
+        public int PositionY { get; set; } = y;
+        public int PositionX { get; set; } = x;
+        public float Resistance { get; set; } = resistance;
+        public float AdditionalInfectionResistance { get; set; }
+        public float Health { get; set; } = 100;
+        public bool IsInfected { get; set; }
+        public bool IsContagious { get; set; }
+        public byte IncubationTime { get; set; }
+        public byte DaysOfImmunity { get; set; }
+        public byte DmgDelay { get; set; }
+        public byte ContagiousTime { get; set; }
+
+        public bool CanMove => Health > 0.5;
 
         public bool IsSusceptibleToInfection()
         {
