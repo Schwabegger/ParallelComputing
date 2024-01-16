@@ -11,7 +11,7 @@ namespace PandemicSimulator
         static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private CancellationToken simulationCancellationToken = cancellationTokenSource.Token;
         private Bitmap _worldBitmap = null!;
-        private Simulation? _simulation;
+        private SimulationNew? _simulation;
         private SimulationConfig? _config;
         private Stopwatch _stopwatch = new Stopwatch();
         private int _frameCount = 0;
@@ -85,7 +85,7 @@ namespace PandemicSimulator
             }
             cancellationTokenSource = new();
             simulationCancellationToken = cancellationTokenSource.Token;
-            _simulation = new Simulation(_config, simulationCancellationToken);
+            _simulation = new SimulationNew(_config, simulationCancellationToken);
             //_simulation.Initialize();
             _worldBitmap = new Bitmap(_config.Width, _config.Height, PixelFormat.Format32bppArgb);
             // Simulation Events
@@ -147,7 +147,7 @@ namespace PandemicSimulator
             });
         }
 
-        private void Simulation_OnSimulationUpdated(object? sender, SimulationUpdateEventArgs e)
+        private void Simulation_OnSimulationUpdated(object? sender, SimulationUpdateNewEventArgs e)
         {
             Interlocked.Increment(ref _frameCount);
             Interlocked.Increment(ref _iterations);
@@ -193,7 +193,7 @@ namespace PandemicSimulator
             [PersonColor.ContagiousAndLowHealth] = Color.DarkRed
         });
 
-        private void UpdateImgPartially(IEnumerable<MovedPerson> movedPeople, IEnumerable<Point> died)
+        private void UpdateImgPartially(IEnumerable<MovedPersonNew> movedPeople, IEnumerable<Point> died)
         {
             BitmapData bmpData = _worldBitmap.LockBits(new Rectangle(0, 0, _worldBitmap.Width, _worldBitmap.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
@@ -216,7 +216,7 @@ namespace PandemicSimulator
                 // Remove moved peoples previous position from the bitmap
                 Parallel.ForEach(movedPeople, (person) =>
                 {
-                    int index = person.PreviousPosition.Y * bmpData.Stride + person.PreviousPosition.X * 4; // Assuming 32bppArgb format
+                    int index = person.PreviousY * bmpData.Stride + person.PreviousX * 4; // Assuming 32bppArgb format
                     unsafe
                     {
                         byte* ptr = (byte*)bmpData.Scan0;
@@ -230,7 +230,7 @@ namespace PandemicSimulator
                 // Draw moved peoples current position on the bitmap
                 Parallel.ForEach(movedPeople, (person) =>
                 {
-                    int index = person.CurrentPosition.Y * bmpData.Stride + person.CurrentPosition.X * 4; // Assuming 32bppArgb format
+                    int index = person.CurrentY * bmpData.Stride + person.CurrentX * 4; // Assuming 32bppArgb format
 
                     Color color = GetPixelColorBasedOnPersonCondition(person);
 
@@ -254,7 +254,7 @@ namespace PandemicSimulator
             }
         }
 
-        private static Color GetPixelColorBasedOnPersonCondition(MovedPerson person)
+        private static Color GetPixelColorBasedOnPersonCondition(MovedPersonNew person)
         {
             if (person.IsInfected && person.IsContagious)
                 return _personColors[PersonColor.Contagious];

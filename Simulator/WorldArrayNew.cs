@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Drawing;
+using System.Security.Cryptography;
 
 namespace Simulator
 {
@@ -23,7 +24,19 @@ namespace Simulator
     //}
     //#endregion
 
-    public class WorldArrayNew : IWorld
+
+    public class WorldUpdateNew
+    {
+        public List<MovedPersonNew> MovedPeople { get; set; }
+        public ConcurrentBag<Point> DiedPeople { get; set; }
+        public int PplAlive { get; set; }
+        public int PplInfected { get; set; }
+        public int PplContagious { get; set; }
+    }
+
+    public record MovedPersonNew(int PreviousX, int PreviousY, int CurrentX, int CurrentY, bool IsInfected, bool IsContagious, float Health);
+
+    public class WorldArrayNew
     {
         const int MOVEDIRECTIONSLENGTH = 8;
         private readonly bool[] _infectionRate = new bool[100];
@@ -33,12 +46,14 @@ namespace Simulator
         static readonly ThreadLocal<Random> random = new(() => new Random(int.MaxValue));
         private ConcurrentBag<Point> _diedPeople = new();
         private ConcurrentBag<PersonNew> _survivedPeople = new();
-        private List<MovedPerson> _movedPeople = new();
+        private List<MovedPersonNew> _movedPeople = new();
         private List<PersonNew> _retryMove = new();
         private PersonNew[] _people;
         private int _pplAlive;
         private int _pplInfected;
         private int _pplContagious;
+
+        private WorldUpdateNew _worldUpdate;
 
         #region Config
         private static int _width;
@@ -75,9 +90,12 @@ namespace Simulator
             _world = new PersonNew[config.Height, config.Width];
             _pplAlive = config.Population;
             _pplInfected = config.InitialInfected;
+            _worldUpdate = new();
             SetLocalVariables(config);
             Initialize();
         }
+
+        public ref WorldUpdateNew GetWorldRef() => ref _worldUpdate;
 
         public void Initialize()
         {
@@ -161,13 +179,13 @@ namespace Simulator
             Interlocked.Decrement(ref _pplAlive);
             if (person.IsContagious) Interlocked.Decrement(ref _pplContagious);
         }
-        private void Person_OnMoved(int previousX, int previousY, int newX, int newY, bool isContaigous, bool isInfected, int health)
+        private void Person_OnMoved(int previousX, int previousY, int newX, int newY, bool isContaigous, bool isInfected, float health)
         {
-            _movedPeople.Add(new MovedPerson(previousX, previousY, newX, newY, isContaigous, isInfected, health));
+            _movedPeople.Add(new MovedPersonNew(previousX, previousY, newX, newY, isContaigous, isInfected, health));
         }
         #endregion
 
-        public WorldUpdate Update()
+        public async Task Update()
         {
             _movedPeople.Clear();
             _diedPeople.Clear();
@@ -189,7 +207,11 @@ namespace Simulator
 
             _people = _survivedPeople.ToArray();
 
-            return new(_movedPeople, _diedPeople, _pplAlive, _pplInfected, _pplContagious);
+            _worldUpdate.MovedPeople = _movedPeople;
+            _worldUpdate.DiedPeople = _diedPeople;
+            _worldUpdate.PplAlive = _pplAlive;
+            _worldUpdate.PplInfected = _pplInfected;
+            _worldUpdate.PplContagious = _pplContagious;
         }
 
         private void MakePersonInfectedContagiousTakeDamageAndDie()
@@ -336,7 +358,7 @@ namespace Simulator
             person.Health -= damage;
         }
 
-        private void HealPerson(Person person)
+        private void HealPerson(PersonNew person)
         {
             if (person.Health == 100)
                 return;
@@ -365,40 +387,9 @@ namespace Simulator
                 if (_world[newPosition.Y, newPosition.X] is null)
                     break;
             }
+            Person_OnMoved(person.PositionX, person.PositionY, newPosition.X, newPosition.Y, person.IsContagious, person.IsInfected, person.Health);
             _world[newPosition.Y, newPosition.X] = person;
             _world[person.PositionY, person.PositionX] = null;
-            Person_OnMoved(person, new PersonMoveEventArgs(person.PositionX, person.PositionY, newPosition.X, newPosition.Y));
-            person.Move(newPosition);
-        }
-
-        private void MovePerson2(PersonNew person)
-        {
-            random.Value.Shuffle(moveDirections);
-            int newX = person.PositionX;
-            int newY = person.PositionY;
-
-            foreach (var moveDirection in moveDirections)
-            {
-                var (dx, dy) = moveDirection switch
-                {
-                    MoveDirection.Left => (-1, 0),
-                    MoveDirection.Right => (1, 0),
-                    MoveDirection.Up => (0, -1),
-                    MoveDirection.Down => (0, 1),
-                    MoveDirection.UpLeft => (-1, -1),
-                    MoveDirection.UpRight => (1, -1),
-                    MoveDirection.DownLeft => (-1, 1),
-                    MoveDirection.DownRight => (1, 1),
-                    _ => throw new ArgumentOutOfRangeException()
-                };
-
-                newX = (dx + _width) % _width;
-                newY = (dy + _height) % _height;
-            }
-
-            _world[newY, newX] = person;
-            _world[person.PositionY, person.PositionX] = null;
-            person.Move(newX, newY);
         }
 
         private bool IsSurrounded(PersonNew person)
