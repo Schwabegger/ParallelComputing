@@ -11,7 +11,7 @@ namespace Simulator
         public Point[] PeopleDied { get; set; }
     }
 
-    public sealed class SimulationNew(SimulationConfig config, CancellationToken cancellationToken) : ISimulation
+    public sealed class SimulationNew(SimulationConfig config, CancellationToken cancellationToken)
     {
         public event EventHandler<SimulationEndEventArgs>? OnSimulationFinished;
         public event EventHandler<SimulationUpdateNewEventArgs>? OnSimulationUpdated;

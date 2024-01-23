@@ -40,8 +40,8 @@ namespace PandemicSimulator
             int width = screen.Bounds.Width;
             int height = screen.Bounds.Height;
 
-            width = 1920;
-            height = 1080;
+            width = 1900;
+            height = 1000;
 
             Size = new Size(width, height);
             this.CenterToScreen();

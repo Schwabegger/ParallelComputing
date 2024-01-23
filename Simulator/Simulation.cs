@@ -2,11 +2,6 @@
 
 namespace Simulator
 {
-    public interface ISimulation
-    {
-        Task Run();
-    }
-    
     public sealed class SimulationUpdateEventArgs : EventArgs
     {
         public required int PeopleAlive { get; set; }
@@ -24,7 +19,7 @@ namespace Simulator
         public required int PeopleContagious { get; set; }
     }
 
-    public sealed class Simulation(SimulationConfig config, CancellationToken cancellationToken) : ISimulation
+    public sealed class Simulation(SimulationConfig config, CancellationToken cancellationToken)
     {
         public event EventHandler<SimulationEndEventArgs>? OnSimulationFinished;
         public event EventHandler<SimulationUpdateEventArgs>? OnSimulationUpdated;
@@ -36,8 +31,8 @@ namespace Simulator
         /// <summary>
         /// Runs the simulation
         /// </summary>
-        /// <exception cref="InvalidOperationException"></exception>
-        public async Task Run()
+        /// <exception cref="InvalidOperationException">If config is invalid</exception>
+        public void Run()
         {
             if (!config.IsValid())
                 throw new InvalidOperationException("Invalid simulation configuration");

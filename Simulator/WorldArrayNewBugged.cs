@@ -24,19 +24,7 @@ namespace Simulator
     //}
     //#endregion
 
-
-    public class WorldUpdateNew
-    {
-        public List<MovedPersonNew> MovedPeople { get; set; }
-        public ConcurrentBag<Point> DiedPeople { get; set; }
-        public int PplAlive { get; set; }
-        public int PplInfected { get; set; }
-        public int PplContagious { get; set; }
-    }
-
-    public record MovedPersonNew(int PreviousX, int PreviousY, int CurrentX, int CurrentY, bool IsInfected, bool IsContagious, float Health);
-
-    public class WorldArrayNew
+    public class WorldArrayNewBugged
     {
         const int MOVEDIRECTIONSLENGTH = 8;
         private readonly bool[] _infectionRate = new bool[100];
@@ -84,7 +72,7 @@ namespace Simulator
 
         private PersonNew?[,] _world;
 
-        public WorldArrayNew(SimulationConfig config)
+        public WorldArrayNewBugged(SimulationConfig config)
         {
             _people = new PersonNew[config.Population];
             _world = new PersonNew[config.Height, config.Width];
@@ -103,26 +91,20 @@ namespace Simulator
             int x; int y;
             for (var i = 0; i < _population; i++)
             {
-                // move right if the position is already occupied to enhance performance
-                //x = rnd.Next(0, _width);
-                //y = rnd.Next(0, _height);
-                //while (_world[y, x] is not null)
-                //{
-                //    x++;
-                //    if (x >= _width)
-                //    {
-                //        x = 0;
-                //        y++;
-                //        if (y >= _height)
-                //            y = 0;
-                //    }
-                //}
-
-                do
+                // move right if the position is already occupied to enhance
+                x = rnd.Next(0, _width);
+                y = rnd.Next(0, _height);
+                while (_world[y, x] is not null)
                 {
-                    x = rnd.Next(0, _width);
-                    y = rnd.Next(0, _height);
-                } while (_world[y, x] is not null);
+                    x++;
+                    if (x >= _width)
+                    {
+                        x = 0;
+                        y++;
+                        if (y >= _height)
+                            y = 0;
+                    }
+                }
 
                 var person = new PersonNew(y, x, (float)rnd.Next((int)(_initialResistanceMin * 10), (int)(_initialResistanceMax * 10)) / 10);
 
