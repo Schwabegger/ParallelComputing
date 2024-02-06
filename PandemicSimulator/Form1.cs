@@ -73,6 +73,7 @@ namespace PandemicSimulator
 
             tsmiStart.Enabled = false;
             tsmiCancle.Enabled = true;
+            // Stop simulation if it's running
             if (_simulationThread is not null && _simulationThread.IsAlive)
             {
                 cancellationTokenSource.Cancel();
@@ -84,6 +85,8 @@ namespace PandemicSimulator
                 }
             }
             cancellationTokenSource = new();
+
+            // Start simulation
             simulationCancellationToken = cancellationTokenSource.Token;
             _simulation = new Simulation(_config, simulationCancellationToken);
             //_simulation.Initialize();
@@ -100,11 +103,13 @@ namespace PandemicSimulator
             timer1.Start();
             //Task simulationTask = Task.Run(() => _simulation!.Run());
         }
+
         private void tsmiCancle_Click(object sender, EventArgs e)
         {
             cancellationTokenSource.CancelAsync();
             Task.Run(() =>
             {
+                // Wait for simulation to finish and dispose the bitmap to free memory (not sure if it works)
                 while (_simulationThread is not null && _simulationThread.IsAlive || _updatingUI)
                 {
                     Thread.Sleep(100);
@@ -120,6 +125,7 @@ namespace PandemicSimulator
 
         private void tsmiConfig_Click(object sender, EventArgs e)
         {
+            // Open configuration form
             using (var configurationForm = new ConfigurationForm())
             {
                 var dialogResult = configurationForm.ShowDialog();
@@ -193,10 +199,17 @@ namespace PandemicSimulator
             [PersonColor.ContagiousAndLowHealth] = Color.DarkRed
         });
 
+        /// <summary>
+        /// Updates the bitmap partially based on the moved people and died people
+        /// </summary>
+        /// <param name="movedPeople"></param>
+        /// <param name="died"></param>
         private void UpdateImgPartially(IEnumerable<MovedPerson> movedPeople, IEnumerable<Point> died)
         {
+            // Lock the bitmap to get the bitmap data and ensure thread safety
             BitmapData bmpData = _worldBitmap.LockBits(new Rectangle(0, 0, _worldBitmap.Width, _worldBitmap.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
+            // Update the bitmap using parallel processing and pointers to improve performance 
             try
             {
                 // Remove dead people from the bitmap
@@ -250,10 +263,16 @@ namespace PandemicSimulator
             }
             finally
             {
+                // Unlock the bitmap to release the lock
                 _worldBitmap.UnlockBits(bmpData);
             }
         }
 
+        /// <summary>
+        /// Gets the pixel color based on the persons condition
+        /// </summary>
+        /// <param name="person"></param>
+        /// <returns>Returns a <see cref="PersonColor"/> according to the persons condition</returns>
         private static Color GetPixelColorBasedOnPersonCondition(MovedPerson person)
         {
             if (person.IsInfected && person.IsContagious)
@@ -273,6 +292,9 @@ namespace PandemicSimulator
             return Color.Green;
         }
 
+        /// <summary>
+        /// Invokes the specified action on the UI thread
+        /// </summary>
         private void UpdateUI()
         {
             try
@@ -299,6 +321,11 @@ namespace PandemicSimulator
             }
         }
 
+        /// <summary>
+        /// Timer to calculate the FPS
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void timer1_Tick(object sender, EventArgs e)
         {
             if (_stopwatch.ElapsedMilliseconds >= 1000)
